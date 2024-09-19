@@ -1,14 +1,25 @@
-import {AuroraBackground} from "@/components/ui/aurora-background";
-import ExpandableCardDemo from "@/components/blocks/expandable-card-demo-standard";
+import Link from "next/link"
 
-export default function Home() {
-  return (
-      <main className="relative mx-auto flex flex-col items-center justify-center overflow-clip px-5 bg-black sm:px-10">
-          <div className="w-full">
-              <AuroraBackground className="z-0" showRadialGradient={true}>
-                  <h1 className="text-3xl font-bold text-black">Connect your Spotify</h1>
-              </AuroraBackground>
-          </div>
-      </main>
-  );
+export default async function Home() {
+
+
+    return (
+        <main className="my-24 text-center">
+            <h1 className="text-2xl">Spotify</h1>
+            <div className="flex gap-2 justify-center mt-12">
+                <Link
+                    className=" inline-block py-3 px-6 rounded-md font-bold text-black bg-green-400"
+                    href="/callback"
+                >
+                    Connect your Spotify
+                </Link>
+                <Link
+                    className="text-black  inline-block py-3 px-6 rounded-md font-bold bg-gradient-to-tr from-teal-400 to-cyan-400"
+                    href="/dashboard"
+                >
+                    Got to Dashboard
+                </Link>
+            </div>
+        </main>
+    )
 }

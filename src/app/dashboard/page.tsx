@@ -39,7 +39,6 @@ export default function Dashboard() {
     }
 
     const handleSearch = (tracks: Track[]) => {
-        console.log(tracks);
         setTracks(tracks);
     };
 

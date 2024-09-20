@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import generateRandomString from "@/modules/generateRandomString";
+import generateRandomString from "@/services/generateRandomString";
 
 export default function Callback() {
     const searchParams = useSearchParams();

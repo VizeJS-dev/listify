@@ -1,8 +1,9 @@
 'use client'
 
-import React, { useRef, useEffect } from "react";
+import React, {useRef, useEffect, useState} from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { CirclePlus, CircleMinus, CirclePlay, CirclePause } from "lucide-react";
+import Image from "next/image";
 
 interface Track {
     id: string;
@@ -28,6 +29,7 @@ interface ExpandableCardProps {
 const ExpandableCard: React.FC<ExpandableCardProps> = ({ card, delay, onCardClick, isPlaying, isAdded, onPlayPause, onAudioEnded }) => {
     const id = card.id;
     const audioRef = useRef<HTMLAudioElement>(null);
+    const [hovered, setHovered] = useState(false);
 
     useEffect(() => {
         if (isPlaying && audioRef.current && audioRef.current.paused) {
@@ -48,28 +50,61 @@ const ExpandableCard: React.FC<ExpandableCardProps> = ({ card, delay, onCardClic
         : <CirclePlus className="dark:text-white cursor-pointer" onClick={() => onCardClick(card)} />;
 
     return (
-        <AnimatePresence>
+        <div
+            className="relative group block p-2 h-full w-full"
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+        >
+            <AnimatePresence>
+                {hovered && (
+                    <motion.span
+                        className="absolute inset-0 h-full w-full bg-neutral-200 dark:bg-slate-800/[0.8] block rounded-3xl"
+                        layoutId="hoverBackground"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1, transition: { duration: 0.15 } }}
+                        exit={{ opacity: 0, transition: { duration: 0.15, delay: 0.2 } }}
+                    />
+                )}
+            </AnimatePresence>
             <motion.div
-                className="flex flex-row items-center justify-between"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.5, ease: "easeOut", delay }}
+                initial={{ opacity: 0.0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                    delay,
+                    duration: 0.8,
+                    ease: 'easeInOut',
+                }}
+                className="flex flex-row items-center justify-between relative z-10 rounded-lg p-2"
             >
-                <motion.div key={card.name} layoutId={`card-${card.name}-${id}`}>
-                    <motion.h3
-                        layoutId={`title-${card.name}-${id}`}
-                        className="font-bold text-neutral-700 text-left text-wrap dark:text-neutral-200"
-                    >
-                        {card.name}
-                    </motion.h3>
-                    <motion.p className="text-neutral-600 text-left text-wrap dark:text-neutral-400">
-                        {card.artists.map(artist => artist.name).join(", ")}
-                    </motion.p>
-                </motion.div>
-                <motion.div className="flex justify-center items-center">
+                <div className="flex items-center">
+                    {card.album?.images?.[0] && (
+                        <Image
+                            src={card.album.images[0].url}
+                            alt={card.name}
+                            width={50}
+                            height={50}
+                            className="mr-4 rounded-lg"
+                        />
+                    )}
+                    <div>
+                        <motion.h3
+                            layoutId={`title-${card.name}-${card.id}`}
+                            className="font-bold text-neutral-700 text-left truncate dark:text-neutral-200"
+                        >
+                            {card.name}
+                        </motion.h3>
+                        <motion.p className="text-neutral-600 text-left text-wrap dark:text-neutral-400">
+                            {card.artists.map((artist) => artist.name).join(', ')}
+                        </motion.p>
+                    </div>
+                </div>
+                <div className="flex items-center">
                     {card.preview_url && (
-                        <div onClick={togglePlayPause} className="cursor-pointer mr-2">
+                        <div
+                            onClick={togglePlayPause}
+                            className="cursor-pointer mr-2"
+                            aria-label="Toggle play/pause"
+                        >
                             {isPlaying ? (
                                 <CirclePause className="dark:text-white" />
                             ) : (
@@ -79,9 +114,9 @@ const ExpandableCard: React.FC<ExpandableCardProps> = ({ card, delay, onCardClic
                     )}
                     {renderAddRemoveIcon()}
                     <audio ref={audioRef} src={card.preview_url} onEnded={onAudioEnded} />
-                </motion.div>
+                </div>
             </motion.div>
-        </AnimatePresence>
+        </div>
     );
 };
 

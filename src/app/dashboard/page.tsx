@@ -48,6 +48,7 @@ export default function Dashboard() {
 
     // Handle search results
     const handleSearch = (trackResults: Track[]) => {
+        console.log(trackResults);
         const filteredTracks = trackResults.filter(
             track => !selectedTracks.some(selectedTrack => selectedTrack.id === track.id)
         ).slice(0, 14); // Limit to the next 10 tracks that are not already in the selected tracks list
@@ -100,34 +101,36 @@ export default function Dashboard() {
                 <div className="absolute top-2 right-2">
                     <ModeToggle />
                 </div>
-                <div className="relative h-3/4 w-2/4 flex flex-row gap-4 items-center justify-center px-4 py-2">
+                <div className="relative w-3/4 flex flex-row gap-4 items-start justify-center px-4 py-2">
                     {/* Tracks List */}
-                    <div className="m-2 flex h-full w-1/2 flex-col rounded-md bg-transparent">
+                    <div className="p-2 w-1/2 flex flex-col bg-transparent rounded-md overflow-y-auto overflow-x-hidden min-h-[36rem] max-h-[36rem] custom-scrollbar">
                         <AnimatePresence>
-                            {tracks.map((track: Track, index: number) => (
+                            {tracks.map((track) => (
                                 <ExpandableCard
                                     key={track.id}
                                     card={track}
-                                    delay={index * 0.15}
+                                    delay={0.1}
                                     onCardClick={handleCardClick}
+                                    isPlaying={playingTrackId === track.id && isPlaying}
                                     isAdded={false}
-                                    isPlaying={isPlaying && playingTrackId === track.id}
                                     onPlayPause={handlePlayPause}
                                     onAudioEnded={handleAudioEnded}
                                 />
                             ))}
                         </AnimatePresence>
                     </div>
+
                     {/* Selected Tracks List */}
-                    <div className="m-2 flex h-full w-1/2 flex-col rounded-md bg-transparent overflow-x-hidden">
+                    <div className="p-2 w-1/2 flex flex-col bg-transparent rounded-md overflow-y-auto overflow-x-hidden min-h-[36rem] max-h-[36rem] custom-scrollbar">
                         <AnimatePresence>
-                            {selectedTracks.map((track: Track) => (
+                            {selectedTracks.map((track) => (
                                 <ExpandableCard
                                     key={track.id}
                                     card={track}
+                                    delay={0.1}
                                     onCardClick={handleCardClick}
+                                    isPlaying={playingTrackId === track.id && isPlaying}
                                     isAdded={true}
-                                    isPlaying={isPlaying && playingTrackId === track.id}
                                     onPlayPause={handlePlayPause}
                                     onAudioEnded={handleAudioEnded}
                                 />

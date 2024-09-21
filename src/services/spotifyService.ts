@@ -27,14 +27,13 @@ export const searchTracks = async (query: string): Promise<TrackItem[]> => {
         });
 
         if (!response.ok) {
-            console.error(`Error in searchTracks function: ${response.statusText}`);
+            console.error(`Response error in searchTracks function: ${response.statusText}`);
             return [];
         }
 
         const data: TracksResponse = await response.json();
         return data.tracks.items;
     } catch (error) {
-        console.error('Error in searchTracks function:', error);
-        return [];
+        throw error;
     }
 };

@@ -14,7 +14,7 @@ interface Album {
 interface Track {
     id: string;
     name: string;
-    preview_url: string;
+    preview_url?: string;
     artists: Artist[];
     album: Album;
 }
@@ -74,7 +74,6 @@ const ExpandableCard: React.FC<ExpandableCardProps> = ({ card, delay, onCardClic
                 className="flex flex-row items-center justify-between relative z-10 rounded-lg p-2"
                 initial={{ opacity: 0.0, x: -40 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{opacity: 0, x: 40}}
                 transition={{
                     delay,
                     duration: 0.8,

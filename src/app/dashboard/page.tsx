@@ -8,15 +8,20 @@ import { ModeToggle } from '@/components/ui/theme-toggle';
 import { useRouter } from 'next/navigation';
 import ExpandableCard from '@/components/blocks/expendable-card';
 
+interface Artist {
+    name: string;
+}
+
+interface Album {
+    images: { url: string }[];
+}
+
 interface Track {
     id: string;
     name: string;
-    album: {
-        name: string;
-        images: { url: string }[];
-    };
-    artists: { name: string }[];
     preview_url?: string;
+    artists: Artist[];
+    album: Album;
 }
 
 export default function Dashboard() {
@@ -25,7 +30,7 @@ export default function Dashboard() {
     const [tracks, setTracks] = useState<Track[]>([]);
     const [selectedTracks, setSelectedTracks] = useState<Track[]>([]);
     const [playingTrackId, setPlayingTrackId] = useState<string | null>(null);
-    const [isPlaying, setIsPlaying] = useState<boolean>(false); // new state to track the actual playback state
+    const [isPlaying, setIsPlaying] = useState<boolean>(false);
 
     const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -106,38 +111,51 @@ export default function Dashboard() {
                     <ModeToggle />
                 </div>
                 <div className="relative w-3/4 flex flex-row gap-4 items-start justify-center px-4 py-2">
-                    {/* Tracks List */}
                     <div className="p-2 w-1/2 flex flex-col bg-transparent rounded-md overflow-y-auto overflow-x-hidden min-h-[36rem] max-h-[36rem] custom-scrollbar">
-                        <AnimatePresence>
+                        <AnimatePresence initial={false}>
                             {tracks.map((track, index) => (
-                                <ExpandableCard
+                                <motion.div
                                     key={track.id}
-                                    card={track}
-                                    delay={0.15 * index}
-                                    onCardClick={handleCardClick}
-                                    isPlaying={playingTrackId === track.id && isPlaying}
-                                    isAdded={false}
-                                    onPlayPause={handlePlayPause}
-                                    onAudioEnded={handleAudioEnded}
-                                />
+                                    layout
+                                    initial={{ opacity: 0, x: -40 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: 40 }}
+                                    transition={{ type: 'tween', duration: 0.2 }}
+                                >
+                                    <ExpandableCard
+                                        card={track}
+                                        delay={0.15 * index}
+                                        onCardClick={handleCardClick}
+                                        isPlaying={playingTrackId === track.id && isPlaying}
+                                        isAdded={false}
+                                        onPlayPause={handlePlayPause}
+                                        onAudioEnded={handleAudioEnded}
+                                    />
+                                </motion.div>
                             ))}
                         </AnimatePresence>
                     </div>
-
-                    {/* Selected Tracks List */}
                     <div className="p-2 w-1/2 flex flex-col bg-transparent rounded-md overflow-y-auto overflow-x-hidden min-h-[36rem] max-h-[36rem] custom-scrollbar">
-                        <AnimatePresence>
+                        <AnimatePresence initial={false}>
                             {selectedTracks.map((track) => (
-                                <ExpandableCard
+                                <motion.div
                                     key={track.id}
-                                    card={track}
-                                    delay={0.1}
-                                    onCardClick={handleCardClick}
-                                    isPlaying={playingTrackId === track.id && isPlaying}
-                                    isAdded={true}
-                                    onPlayPause={handlePlayPause}
-                                    onAudioEnded={handleAudioEnded}
-                                />
+                                    layout
+                                    initial={{ opacity: 0, x: -40 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: -40 }}
+                                    transition={{ type: 'tween', duration: 0.2 }}
+                                >
+                                    <ExpandableCard
+                                        card={track}
+                                        delay={0.1}
+                                        onCardClick={handleCardClick}
+                                        isPlaying={playingTrackId === track.id && isPlaying}
+                                        isAdded={true}
+                                        onPlayPause={handlePlayPause}
+                                        onAudioEnded={handleAudioEnded}
+                                    />
+                                </motion.div>
                             ))}
                         </AnimatePresence>
                     </div>

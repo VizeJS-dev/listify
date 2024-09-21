@@ -29,7 +29,7 @@ interface ExpandableCardProps {
     onAudioEnded: () => void;
 }
 
-const ExpandableCard: React.FC<ExpandableCardProps> = ({ card, delay, onCardClick, isPlaying, isAdded, onPlayPause, onAudioEnded }) => {
+const ExpandableCard: React.FC<ExpandableCardProps> = ({ card, delay, onCardClick, isPlaying, isAdded, onPlayPause, onAudioEnded}) => {
     const audioRef = useRef<HTMLAudioElement>(null);
     const [hovered, setHovered] = useState(false);
 
@@ -41,13 +41,13 @@ const ExpandableCard: React.FC<ExpandableCardProps> = ({ card, delay, onCardClic
                 audioRef.current.pause();
             }
         }
-    }, [isPlaying]); // added audioRef.current to the dependencies
+    }, [isPlaying]);
 
     const togglePlayPause = useCallback(() => {
         if (audioRef.current) {
             onPlayPause(card.id, audioRef.current);
         }
-    }, [onPlayPause, card.id]); // used useCallback to ensure stable reference
+    }, [onPlayPause, card.id]);
 
     const renderAddRemoveIcon = isAdded
         ? <CircleMinus className="dark:text-white cursor-pointer" onClick={() => onCardClick(card)} />

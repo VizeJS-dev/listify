@@ -32,6 +32,7 @@ export default function Dashboard() {
     const [playingTrackId, setPlayingTrackId] = useState<string | null>(null);
     const [isPlaying, setIsPlaying] = useState<boolean>(false);
     const audioRef = useRef<HTMLAudioElement | null>(null);
+    const baseVolume = 0.03;
 
     // Check for access token and its expiry
     useEffect(() => {
@@ -59,6 +60,13 @@ export default function Dashboard() {
 
     // Handle card click (toggle selection)
     const handleCardClick = (track: Track) => {
+        if (audioRef.current) {
+            audioRef.current.pause();
+            audioRef.current.currentTime = 0;
+            setPlayingTrackId(null);
+            setIsPlaying(false);
+        }
+
         setSelectedTracks(prevSelectedTracks =>
             prevSelectedTracks.some(t => t.id === track.id)
                 ? prevSelectedTracks.filter(t => t.id !== track.id)
@@ -79,7 +87,7 @@ export default function Dashboard() {
             setIsPlaying(true);
         }
         audioRef.current = audio;
-        audioRef.current.volume = 0.03;
+        audioRef.current.volume = baseVolume;
     };
 
     // Handle audio end event

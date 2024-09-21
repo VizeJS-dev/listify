@@ -47,8 +47,11 @@ export default function Dashboard() {
     }
 
     // Handle search results
-    const handleSearch = (tracks: Track[]) => {
-        setTracks(tracks);
+    const handleSearch = (trackResults: Track[]) => {
+        const filteredTracks = trackResults.filter(
+            track => !selectedTracks.some(selectedTrack => selectedTrack.id === track.id)
+        );
+        setTracks(filteredTracks);
     };
 
     // Handle card click (toggle selection)
@@ -98,7 +101,7 @@ export default function Dashboard() {
                     <ModeToggle />
                 </div>
                 <div className="relative h-3/4 w-2/4 flex flex-row gap-4 items-center justify-center px-4 py-2">
-                    {/* Tracks List */}
+                    {/* Searched tracks List */}
                     <div className="m-2 flex h-full w-1/2 flex-col rounded-md bg-transparent">
                         <AnimatePresence>
                             {tracks.map((track: Track, index: number) => (

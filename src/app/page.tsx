@@ -1,18 +1,8 @@
 'use client'
 
 import Link from "next/link";
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 
 export default function Home() {
-    // const router = useRouter();
-    //
-    // // useEffect(() => {
-    // //     const accessToken = localStorage.getItem('spotify_access_token');
-    // //     if (accessToken) {
-    // //         router.push("/dashboard");
-    // //     }
-    // // }, [router]);
 
     return (
         <main className="my-24 text-center">

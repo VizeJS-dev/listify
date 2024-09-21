@@ -36,9 +36,8 @@ export default function Dashboard() {
 
         if (!token || !expiresAt || Date.now() > Number(expiresAt)) {
             router.replace('/login');
-        } else {
-            setAccessToken(token);
         }
+        setAccessToken(token);
     }, [router]);
 
     // Render loading state if no access token
@@ -56,12 +55,14 @@ export default function Dashboard() {
 
     // Handle card click (toggle selection)
     const handleCardClick = (track: Track) => {
-        if (selectedTracks.some(t => t.id === track.id)) {
-            setSelectedTracks(selectedTracks.filter(t => t.id !== track.id));
-        } else {
-            setTracks(tracks.filter(t => t.id !== track.id));
-            setSelectedTracks([...selectedTracks, track]);
-        }
+        setSelectedTracks(prevSelectedTracks =>
+            prevSelectedTracks.some(t => t.id === track.id)
+                ? prevSelectedTracks.filter(t => t.id !== track.id)
+                : [...prevSelectedTracks, track]
+        );
+        setTracks(prevTracks =>
+            prevTracks.filter(t => t.id !== track.id)
+        );
     };
 
     // Handle play/pause actions
@@ -78,6 +79,10 @@ export default function Dashboard() {
 
     // Handle audio end event
     const handleAudioEnded = () => {
+        if (audioRef.current) {
+            audioRef.current.pause();
+            audioRef.current.currentTime = 0;
+        }
         setIsPlaying(false);
         setPlayingTrackId(null);
     };
@@ -104,11 +109,11 @@ export default function Dashboard() {
                     {/* Tracks List */}
                     <div className="p-2 w-1/2 flex flex-col bg-transparent rounded-md overflow-y-auto overflow-x-hidden min-h-[36rem] max-h-[36rem] custom-scrollbar">
                         <AnimatePresence>
-                            {tracks.map((track) => (
+                            {tracks.map((track, index) => (
                                 <ExpandableCard
                                     key={track.id}
                                     card={track}
-                                    delay={0.1}
+                                    delay={0.15 * index}
                                     onCardClick={handleCardClick}
                                     isPlaying={playingTrackId === track.id && isPlaying}
                                     isAdded={false}

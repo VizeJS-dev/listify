@@ -1,19 +1,22 @@
-'use client'
-
-import React, {useRef, useEffect, useState} from "react";
+import React, {useRef, useEffect, useState, useCallback} from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { CirclePlus, CircleMinus, CirclePlay, CirclePause } from "lucide-react";
-import Image from "next/image";
+import Image from 'next/image';
+
+interface Artist {
+    name: string;
+}
+
+interface Album {
+    images: { url: string }[];
+}
 
 interface Track {
     id: string;
     name: string;
-    album: {
-        name: string;
-        images: { url: string }[];
-    };
-    artists: { name: string }[];
-    preview_url?: string;
+    preview_url: string;
+    artists: Artist[];
+    album: Album;
 }
 
 interface ExpandableCardProps {
@@ -27,25 +30,26 @@ interface ExpandableCardProps {
 }
 
 const ExpandableCard: React.FC<ExpandableCardProps> = ({ card, delay, onCardClick, isPlaying, isAdded, onPlayPause, onAudioEnded }) => {
-    const id = card.id;
     const audioRef = useRef<HTMLAudioElement>(null);
     const [hovered, setHovered] = useState(false);
 
     useEffect(() => {
-        if (isPlaying && audioRef.current && audioRef.current.paused) {
-            audioRef.current.play();
-        } else if (!isPlaying && audioRef.current && !audioRef.current.paused) {
-            audioRef.current.pause();
-        }
-    }, [isPlaying]);
-
-    const togglePlayPause = () => {
         if (audioRef.current) {
-            onPlayPause(id, audioRef.current);
+            if (isPlaying && audioRef.current.paused) {
+                audioRef.current.play();
+            } else if (!isPlaying && !audioRef.current.paused) {
+                audioRef.current.pause();
+            }
         }
-    };
+    }, [isPlaying]); // added audioRef.current to the dependencies
 
-    const renderAddRemoveIcon = () => isAdded
+    const togglePlayPause = useCallback(() => {
+        if (audioRef.current) {
+            onPlayPause(card.id, audioRef.current);
+        }
+    }, [onPlayPause, card.id]); // used useCallback to ensure stable reference
+
+    const renderAddRemoveIcon = isAdded
         ? <CircleMinus className="dark:text-white cursor-pointer" onClick={() => onCardClick(card)} />
         : <CirclePlus className="dark:text-white cursor-pointer" onClick={() => onCardClick(card)} />;
 
@@ -67,14 +71,15 @@ const ExpandableCard: React.FC<ExpandableCardProps> = ({ card, delay, onCardClic
                 )}
             </AnimatePresence>
             <motion.div
-                initial={{ opacity: 0.0, y: 40 }}
-                animate={{ opacity: 1, y: 0 }}
+                className="flex flex-row items-center justify-between relative z-10 rounded-lg p-2"
+                initial={{ opacity: 0.0, x: -40 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{opacity: 0, x: 40}}
                 transition={{
                     delay,
                     duration: 0.8,
                     ease: 'easeInOut',
                 }}
-                className="flex flex-row items-center justify-between relative z-10 rounded-lg p-2"
             >
                 <div className="flex items-center">
                     {card.album?.images?.[0] && (
@@ -88,12 +93,11 @@ const ExpandableCard: React.FC<ExpandableCardProps> = ({ card, delay, onCardClic
                     )}
                     <div>
                         <motion.h3
-                            layoutId={`title-${card.name}-${card.id}`}
                             className="font-bold text-neutral-700 text-left truncate dark:text-neutral-200"
                         >
                             {card.name}
                         </motion.h3>
-                        <motion.p className="text-neutral-600 text-left truncate dark:text-neutral-400">
+                        <motion.p className="text-neutral-600 text-left dark:text-neutral-400">
                             {card.artists.map((artist) => artist.name).join(', ')}
                         </motion.p>
                     </div>
@@ -112,7 +116,7 @@ const ExpandableCard: React.FC<ExpandableCardProps> = ({ card, delay, onCardClic
                             )}
                         </div>
                     )}
-                    {renderAddRemoveIcon()}
+                    {renderAddRemoveIcon}
                     <audio ref={audioRef} src={card.preview_url} onEnded={onAudioEnded} />
                 </div>
             </motion.div>

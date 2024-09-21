@@ -20,25 +20,25 @@ interface ExpandableCardProps {
     delay?: number;
     onCardClick: (track: Track) => void;
     isPlaying: boolean;
-    onPlay: (trackId: string, audio: HTMLAudioElement) => void;
+    onPlayPause: (trackId: string, audio: HTMLAudioElement) => void;
     onAudioEnded: () => void;
 }
 
-const ExpandableCard: React.FC<ExpandableCardProps> = ({ card, delay, onCardClick, isPlaying, onPlay, onAudioEnded }) => {
+const ExpandableCard: React.FC<ExpandableCardProps> = ({ card, delay, onCardClick, isPlaying, onPlayPause, onAudioEnded }) => {
     const id = card.id;
     const audioRef = useRef<HTMLAudioElement>(null);
 
     useEffect(() => {
-        if (isPlaying && audioRef.current) {
+        if (isPlaying && audioRef.current && audioRef.current.paused) {
             audioRef.current.play();
-        } else if (audioRef.current) {
+        } else if (!isPlaying && audioRef.current && !audioRef.current.paused) {
             audioRef.current.pause();
         }
     }, [isPlaying]);
 
-    const togglePlay = () => {
+    const togglePlayPause = () => {
         if (audioRef.current) {
-            onPlay(id, audioRef.current);
+            onPlayPause(id, audioRef.current);
         }
     };
 
@@ -64,7 +64,7 @@ const ExpandableCard: React.FC<ExpandableCardProps> = ({ card, delay, onCardClic
                 </motion.div>
                 <motion.div className="flex justify-center items-center">
                     {card.preview_url && (
-                        <div onClick={togglePlay} className="cursor-pointer mr-2">
+                        <div onClick={togglePlayPause} className="cursor-pointer mr-2">
                             {isPlaying ? (
                                 <CirclePause className="dark:text-white" />
                             ) : (

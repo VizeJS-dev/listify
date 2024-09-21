@@ -1,12 +1,12 @@
-'use client'
+'use client';
 
-import {AnimatePresence, motion} from 'framer-motion';
-import React, {useEffect, useRef, useState} from "react";
-import SearchBar from "@/components/ui/search-bar";
-import { AuroraBackground } from "@/components/ui/aurora-background";
-import { ModeToggle } from "@/components/ui/theme-toggle";
-import { useRouter } from "next/navigation";
-import ExpandableCard from "@/components/blocks/expendable-card";
+import { AnimatePresence, motion } from 'framer-motion';
+import React, { useEffect, useRef, useState } from 'react';
+import SearchBar from '@/components/ui/search-bar';
+import { AuroraBackground } from '@/components/ui/aurora-background';
+import { ModeToggle } from '@/components/ui/theme-toggle';
+import { useRouter } from 'next/navigation';
+import ExpandableCard from '@/components/blocks/expendable-card';
 
 interface Track {
     id: string;
@@ -25,8 +25,11 @@ export default function Dashboard() {
     const [tracks, setTracks] = useState<Track[]>([]);
     const [selectedTracks, setSelectedTracks] = useState<Track[]>([]);
     const [playingTrackId, setPlayingTrackId] = useState<string | null>(null);
+    const [isPlaying, setIsPlaying] = useState<boolean>(false); // new state to track the actual playback state
+
     const audioRef = useRef<HTMLAudioElement | null>(null);
 
+    // Check for access token and its expiry
     useEffect(() => {
         const token = localStorage.getItem('spotify_access_token');
         const expiresAt = localStorage.getItem('spotify_expires_at');
@@ -38,34 +41,41 @@ export default function Dashboard() {
         }
     }, [router]);
 
+    // Render loading state if no access token
     if (!accessToken) {
         return <p>Loading...</p>;
     }
 
+    // Handle search results
     const handleSearch = (tracks: Track[]) => {
         setTracks(tracks);
     };
 
+    // Handle card click (toggle selection)
     const handleCardClick = (track: Track) => {
         if (selectedTracks.some(t => t.id === track.id)) {
-            // Move from selectedTracks back to tracks
             setSelectedTracks(selectedTracks.filter(t => t.id !== track.id));
         } else {
-            // Move from tracks to selectedTracks
             setTracks(tracks.filter(t => t.id !== track.id));
             setSelectedTracks([...selectedTracks, track]);
         }
     };
 
-    const handlePlay = (trackId: string, audio: HTMLAudioElement) => {
-        if (playingTrackId && playingTrackId !== trackId && audioRef.current) {
-            audioRef.current.pause();
+    // Handle play/pause actions
+    const handlePlayPause = (trackId: string, audio: HTMLAudioElement) => {
+        if (playingTrackId === trackId) {
+            setIsPlaying(!isPlaying);
+        } else {
+            if (audioRef.current) audioRef.current.pause();
+            setPlayingTrackId(trackId);
+            setIsPlaying(true);
         }
-        setPlayingTrackId(trackId);
         audioRef.current = audio;
     };
 
+    // Handle audio end event
     const handleAudioEnded = () => {
+        setIsPlaying(false);
         setPlayingTrackId(null);
     };
 
@@ -78,7 +88,7 @@ export default function Dashboard() {
                     transition={{
                         delay: 0.3,
                         duration: 0.8,
-                        ease: "easeInOut",
+                        ease: 'easeInOut',
                     }}
                     className="relative flex flex-col gap-4 items-center justify-center px-4"
                 >
@@ -88,21 +98,23 @@ export default function Dashboard() {
                     <ModeToggle />
                 </div>
                 <div className="relative h-3/4 w-2/4 flex flex-row gap-4 items-center justify-center px-4 py-2">
+                    {/* Tracks List */}
                     <div className="m-2 flex h-full w-1/2 flex-col rounded-md bg-transparent">
                         <AnimatePresence>
-                            {tracks.map((track: Track, index) => (
+                            {tracks.map((track: Track, index: number) => (
                                 <ExpandableCard
                                     key={track.id}
                                     card={track}
                                     delay={index * 0.15}
                                     onCardClick={handleCardClick}
-                                    isPlaying={playingTrackId === track.id}
-                                    onPlay={handlePlay}
+                                    isPlaying={isPlaying && playingTrackId === track.id}
+                                    onPlayPause={handlePlayPause}
                                     onAudioEnded={handleAudioEnded}
                                 />
                             ))}
                         </AnimatePresence>
                     </div>
+                    {/* Selected Tracks List */}
                     <div className="m-2 flex h-full w-1/2 flex-col rounded-md bg-transparent overflow-x-hidden">
                         <AnimatePresence>
                             {selectedTracks.map((track: Track) => (
@@ -110,8 +122,8 @@ export default function Dashboard() {
                                     key={track.id}
                                     card={track}
                                     onCardClick={handleCardClick}
-                                    isPlaying={playingTrackId === track.id}
-                                    onPlay={handlePlay}
+                                    isPlaying={isPlaying && playingTrackId === track.id}
+                                    onPlayPause={handlePlayPause}
                                     onAudioEnded={handleAudioEnded}
                                 />
                             ))}

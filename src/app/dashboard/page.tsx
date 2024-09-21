@@ -31,7 +31,6 @@ export default function Dashboard() {
     const [selectedTracks, setSelectedTracks] = useState<Track[]>([]);
     const [playingTrackId, setPlayingTrackId] = useState<string | null>(null);
     const [isPlaying, setIsPlaying] = useState<boolean>(false);
-
     const audioRef = useRef<HTMLAudioElement | null>(null);
 
     // Check for access token and its expiry
@@ -80,6 +79,7 @@ export default function Dashboard() {
             setIsPlaying(true);
         }
         audioRef.current = audio;
+        audioRef.current.volume = 0.03;
     };
 
     // Handle audio end event

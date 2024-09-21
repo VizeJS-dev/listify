@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
@@ -23,6 +23,7 @@ const Callback = () => {
                 console.error('State mismatch');
                 return;
             }
+
             // Calculate the exact expiry time
             const expiresAt = Date.now() + Number(expiresIn) * 1000;
 
@@ -30,17 +31,22 @@ const Callback = () => {
             localStorage.setItem('spotify_access_token', token);
             localStorage.setItem('spotify_expires_at', expiresAt.toString());
 
+            // Clean up the state
+            localStorage.removeItem('spotify_auth_state');
+
             // Redirect to the dashboard or another page
             router.push("/dashboard");
         } else {
             // Handle the case where there is no token
+            // Provide user feedback or redirect to an error page
             console.error('No access token found');
+            router.push("/error"); // Redirect to an error page or show some error message
         }
 
         hasCheckedAccessToken.current = true;
     }, [router]);
 
-    return null;
+    return null; // or you can provide some UI feedback like "Handling authentication..."
 };
 
 export default Callback;

@@ -48,7 +48,6 @@ export default function Dashboard() {
 
     // Handle search results
     const handleSearch = (trackResults: Track[]) => {
-        console.log(trackResults);
         const filteredTracks = trackResults.filter(
             track => !selectedTracks.some(selectedTrack => selectedTrack.id === track.id)
         ).slice(0, 14); // Limit to the next 10 tracks that are not already in the selected tracks list

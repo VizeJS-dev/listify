@@ -93,7 +93,7 @@ const ExpandableCard: React.FC<ExpandableCardProps> = ({ card, delay, onCardClic
                         >
                             {card.name}
                         </motion.h3>
-                        <motion.p className="text-neutral-600 text-left text-wrap dark:text-neutral-400">
+                        <motion.p className="text-neutral-600 text-left truncate dark:text-neutral-400">
                             {card.artists.map((artist) => artist.name).join(', ')}
                         </motion.p>
                     </div>

@@ -6,7 +6,7 @@ import SearchBar from '@/components/ui/search-bar';
 import { AuroraBackground } from '@/components/ui/aurora-background';
 import { ModeToggle } from '@/components/ui/theme-toggle';
 import { useRouter } from 'next/navigation';
-import ExpandableCard from '@/components/blocks/expendable-card';
+import TrackCard from '@/components/blocks/track';
 
 interface Artist {
     name: string;
@@ -130,7 +130,7 @@ export default function Dashboard() {
                                     exit={{ opacity: 0, x: 40 }}
                                     transition={{ type: 'tween', duration: 0.2 }}
                                 >
-                                    <ExpandableCard
+                                    <TrackCard
                                         card={track}
                                         delay={0.15 * index}
                                         onCardClick={handleCardClick}
@@ -154,7 +154,7 @@ export default function Dashboard() {
                                     exit={{ opacity: 0, x: -40 }}
                                     transition={{ type: 'tween', duration: 0.2 }}
                                 >
-                                    <ExpandableCard
+                                    <TrackCard
                                         card={track}
                                         delay={0.1}
                                         onCardClick={handleCardClick}

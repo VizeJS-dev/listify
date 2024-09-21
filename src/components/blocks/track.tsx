@@ -29,7 +29,7 @@ interface ExpandableCardProps {
     onAudioEnded: () => void;
 }
 
-const ExpandableCard: React.FC<ExpandableCardProps> = ({ card, delay, onCardClick, isPlaying, isAdded, onPlayPause, onAudioEnded}) => {
+const TrackCard: React.FC<ExpandableCardProps> = ({ card, delay, onCardClick, isPlaying, isAdded, onPlayPause, onAudioEnded}) => {
     const audioRef = useRef<HTMLAudioElement>(null);
     const [hovered, setHovered] = useState(false);
 
@@ -123,4 +123,4 @@ const ExpandableCard: React.FC<ExpandableCardProps> = ({ card, delay, onCardClic
     );
 };
 
-export default ExpandableCard;
+export default TrackCard;

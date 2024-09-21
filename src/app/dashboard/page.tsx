@@ -22,6 +22,8 @@ export default function Dashboard() {
     const router = useRouter();
     const [accessToken, setAccessToken] = useState<string | null>(null);
     const [tracks, setTracks] = useState<Track[]>([]);
+    const [selectedTracks, setSelectedTracks] = useState<Track[]>([]);
+
 
     useEffect(() => {
         const token = localStorage.getItem('spotify_access_token');
@@ -42,6 +44,17 @@ export default function Dashboard() {
         setTracks(tracks);
     };
 
+    const handleCardClick = (track: Track) => {
+        if (selectedTracks.some(t => t.id === track.id)) {
+            // Move from selectedTracks back to tracks
+            setSelectedTracks(selectedTracks.filter(t => t.id !== track.id));
+        } else {
+            // Move from tracks to selectedTracks
+            setTracks(tracks.filter(t => t.id !== track.id));
+            setSelectedTracks([...selectedTracks, track]);
+        }
+    };
+
     return (
         <main className="text-center">
             <AuroraBackground>
@@ -57,19 +70,30 @@ export default function Dashboard() {
                 >
                 </motion.div>
                 <SearchBar onSearch={handleSearch}/>
-                <ModeToggle/>
+                <div className="absolute top-2 right-2">
+                    <ModeToggle/>
+                </div>
                 <div className="relative h-3/4 w-2/4 flex flex-row gap-4 items-center justify-center px-4 py-2">
                     <div
                         className="relative m-2 flex h-full w-1/2 flex-col rounded-md bg-transparent">
-                        {tracks.map((track: Track) => (
+                        {tracks.map((track: Track, index) => (
                             <ExpandableCard
                                 key={track.id}
                                 card={track}
+                                delay={index * 0.15}
+                                onCardClick={handleCardClick}
                             />
                         ))}
                     </div>
                     <div
-                        className="relative m-2 flex h-full w-1/2 flex-col rounded-md bg-transparent">
+                        className="relative m-2 flex h-full w-1/2 flex-col rounded-md bg-transparent overflow-x-hidden">
+                        {selectedTracks.map((track: Track) => (
+                            <ExpandableCard
+                                key={track.id}
+                                card={track}
+                                onCardClick={handleCardClick}
+                            />
+                        ))}
                     </div>
                 </div>
             </AuroraBackground>

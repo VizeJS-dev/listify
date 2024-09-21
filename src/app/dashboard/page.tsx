@@ -50,7 +50,7 @@ export default function Dashboard() {
     const handleSearch = (trackResults: Track[]) => {
         const filteredTracks = trackResults.filter(
             track => !selectedTracks.some(selectedTrack => selectedTrack.id === track.id)
-        );
+        ).slice(0, 10); // Limit to the next 10 tracks that are not already in the selected tracks list
         setTracks(filteredTracks);
     };
 
@@ -101,7 +101,7 @@ export default function Dashboard() {
                     <ModeToggle />
                 </div>
                 <div className="relative h-3/4 w-2/4 flex flex-row gap-4 items-center justify-center px-4 py-2">
-                    {/* Searched tracks List */}
+                    {/* Tracks List */}
                     <div className="m-2 flex h-full w-1/2 flex-col rounded-md bg-transparent">
                         <AnimatePresence>
                             {tracks.map((track: Track, index: number) => (

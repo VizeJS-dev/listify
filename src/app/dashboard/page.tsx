@@ -1,10 +1,10 @@
 'use client'
 
-import { motion } from 'framer-motion'
-import React, {useEffect, useState} from "react";
+import {AnimatePresence, motion} from 'framer-motion';
+import React, {useEffect, useRef, useState} from "react";
 import SearchBar from "@/components/ui/search-bar";
-import {AuroraBackground} from "@/components/ui/aurora-background";
-import {ModeToggle} from "@/components/ui/theme-toggle";
+import { AuroraBackground } from "@/components/ui/aurora-background";
+import { ModeToggle } from "@/components/ui/theme-toggle";
 import { useRouter } from "next/navigation";
 import ExpandableCard from "@/components/blocks/expendable-card";
 
@@ -16,6 +16,7 @@ interface Track {
         images: { url: string }[];
     };
     artists: { name: string }[];
+    preview_url?: string;
 }
 
 export default function Dashboard() {
@@ -23,7 +24,8 @@ export default function Dashboard() {
     const [accessToken, setAccessToken] = useState<string | null>(null);
     const [tracks, setTracks] = useState<Track[]>([]);
     const [selectedTracks, setSelectedTracks] = useState<Track[]>([]);
-
+    const [playingTrackId, setPlayingTrackId] = useState<string | null>(null);
+    const audioRef = useRef<HTMLAudioElement | null>(null);
 
     useEffect(() => {
         const token = localStorage.getItem('spotify_access_token');
@@ -37,7 +39,7 @@ export default function Dashboard() {
     }, [router]);
 
     if (!accessToken) {
-        return <p>Loading...</p>
+        return <p>Loading...</p>;
     }
 
     const handleSearch = (tracks: Track[]) => {
@@ -55,12 +57,24 @@ export default function Dashboard() {
         }
     };
 
+    const handlePlay = (trackId: string, audio: HTMLAudioElement) => {
+        if (playingTrackId && playingTrackId !== trackId && audioRef.current) {
+            audioRef.current.pause();
+        }
+        setPlayingTrackId(trackId);
+        audioRef.current = audio;
+    };
+
+    const handleAudioEnded = () => {
+        setPlayingTrackId(null);
+    };
+
     return (
         <main className="text-center">
             <AuroraBackground>
                 <motion.div
-                    initial={{opacity: 0.0, y: 40}}
-                    whileInView={{opacity: 1, y: 0}}
+                    initial={{ opacity: 0.0, y: 40 }}
+                    whileInView={{ opacity: 1, y: 0 }}
                     transition={{
                         delay: 0.3,
                         duration: 0.8,
@@ -69,31 +83,39 @@ export default function Dashboard() {
                     className="relative flex flex-col gap-4 items-center justify-center px-4"
                 >
                 </motion.div>
-                <SearchBar onSearch={handleSearch}/>
+                <SearchBar onSearch={handleSearch} />
                 <div className="absolute top-2 right-2">
-                    <ModeToggle/>
+                    <ModeToggle />
                 </div>
                 <div className="relative h-3/4 w-2/4 flex flex-row gap-4 items-center justify-center px-4 py-2">
-                    <div
-                        className="relative m-2 flex h-full w-1/2 flex-col rounded-md bg-transparent">
-                        {tracks.map((track: Track, index) => (
-                            <ExpandableCard
-                                key={track.id}
-                                card={track}
-                                delay={index * 0.15}
-                                onCardClick={handleCardClick}
-                            />
-                        ))}
+                    <div className="m-2 flex h-full w-1/2 flex-col rounded-md bg-transparent">
+                        <AnimatePresence>
+                            {tracks.map((track: Track, index) => (
+                                <ExpandableCard
+                                    key={track.id}
+                                    card={track}
+                                    delay={index * 0.15}
+                                    onCardClick={handleCardClick}
+                                    isPlaying={playingTrackId === track.id}
+                                    onPlay={handlePlay}
+                                    onAudioEnded={handleAudioEnded}
+                                />
+                            ))}
+                        </AnimatePresence>
                     </div>
-                    <div
-                        className="relative m-2 flex h-full w-1/2 flex-col rounded-md bg-transparent overflow-x-hidden">
-                        {selectedTracks.map((track: Track) => (
-                            <ExpandableCard
-                                key={track.id}
-                                card={track}
-                                onCardClick={handleCardClick}
-                            />
-                        ))}
+                    <div className="m-2 flex h-full w-1/2 flex-col rounded-md bg-transparent overflow-x-hidden">
+                        <AnimatePresence>
+                            {selectedTracks.map((track: Track) => (
+                                <ExpandableCard
+                                    key={track.id}
+                                    card={track}
+                                    onCardClick={handleCardClick}
+                                    isPlaying={playingTrackId === track.id}
+                                    onPlay={handlePlay}
+                                    onAudioEnded={handleAudioEnded}
+                                />
+                            ))}
+                        </AnimatePresence>
                     </div>
                 </div>
             </AuroraBackground>

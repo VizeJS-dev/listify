@@ -2,7 +2,7 @@
 
 import React, { useRef, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { CirclePlus, CirclePlay, CirclePause } from "lucide-react";
+import { CirclePlus, CircleMinus, CirclePlay, CirclePause } from "lucide-react";
 
 interface Track {
     id: string;
@@ -20,11 +20,12 @@ interface ExpandableCardProps {
     delay?: number;
     onCardClick: (track: Track) => void;
     isPlaying: boolean;
+    isAdded: boolean;
     onPlayPause: (trackId: string, audio: HTMLAudioElement) => void;
     onAudioEnded: () => void;
 }
 
-const ExpandableCard: React.FC<ExpandableCardProps> = ({ card, delay, onCardClick, isPlaying, onPlayPause, onAudioEnded }) => {
+const ExpandableCard: React.FC<ExpandableCardProps> = ({ card, delay, onCardClick, isPlaying, isAdded, onPlayPause, onAudioEnded }) => {
     const id = card.id;
     const audioRef = useRef<HTMLAudioElement>(null);
 
@@ -41,6 +42,10 @@ const ExpandableCard: React.FC<ExpandableCardProps> = ({ card, delay, onCardClic
             onPlayPause(id, audioRef.current);
         }
     };
+
+    const renderAddRemoveIcon = () => isAdded
+        ? <CircleMinus className="dark:text-white cursor-pointer" onClick={() => onCardClick(card)} />
+        : <CirclePlus className="dark:text-white cursor-pointer" onClick={() => onCardClick(card)} />;
 
     return (
         <AnimatePresence>
@@ -72,10 +77,7 @@ const ExpandableCard: React.FC<ExpandableCardProps> = ({ card, delay, onCardClic
                             )}
                         </div>
                     )}
-                    <CirclePlus
-                        className="dark:text-white cursor-pointer"
-                        onClick={() => onCardClick(card)}
-                    />
+                    {renderAddRemoveIcon()}
                     <audio ref={audioRef} src={card.preview_url} onEnded={onAudioEnded} />
                 </motion.div>
             </motion.div>

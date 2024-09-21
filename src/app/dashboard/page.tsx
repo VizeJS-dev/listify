@@ -50,7 +50,7 @@ export default function Dashboard() {
     const handleSearch = (trackResults: Track[]) => {
         const filteredTracks = trackResults.filter(
             track => !selectedTracks.some(selectedTrack => selectedTrack.id === track.id)
-        ).slice(0, 10); // Limit to the next 10 tracks that are not already in the selected tracks list
+        ).slice(0, 14); // Limit to the next 10 tracks that are not already in the selected tracks list
         setTracks(filteredTracks);
     };
 
@@ -110,6 +110,7 @@ export default function Dashboard() {
                                     card={track}
                                     delay={index * 0.15}
                                     onCardClick={handleCardClick}
+                                    isAdded={false}
                                     isPlaying={isPlaying && playingTrackId === track.id}
                                     onPlayPause={handlePlayPause}
                                     onAudioEnded={handleAudioEnded}
@@ -125,6 +126,7 @@ export default function Dashboard() {
                                     key={track.id}
                                     card={track}
                                     onCardClick={handleCardClick}
+                                    isAdded={true}
                                     isPlaying={isPlaying && playingTrackId === track.id}
                                     onPlayPause={handlePlayPause}
                                     onAudioEnded={handleAudioEnded}

@@ -35,7 +35,7 @@ const Callback = () => {
             localStorage.removeItem('spotify_auth_state');
 
             // Redirect to the dashboard or another page
-            router.push("/dashboard");
+            //router.push("/dashboard");
         } else {
             // Handle the case where there is no token
             // Provide user feedback or redirect to an error page

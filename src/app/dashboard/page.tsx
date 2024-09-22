@@ -1,28 +1,13 @@
 'use client';
 
-import { AnimatePresence, motion } from 'framer-motion';
 import React, { useEffect, useRef, useState } from 'react';
 import SearchBar from '@/components/ui/search-bar';
+import { createSpotifyPlaylist, addTracksToPlaylist } from '@/services/spotifyService';
 import { AuroraBackground } from '@/components/ui/aurora-background';
 import { ModeToggle } from '@/components/ui/theme-toggle';
 import { useRouter } from 'next/navigation';
-import TrackCard from '@/components/blocks/track';
-
-interface Artist {
-    name: string;
-}
-
-interface Album {
-    images: { url: string }[];
-}
-
-interface Track {
-    id: string;
-    name: string;
-    preview_url?: string;
-    artists: Artist[];
-    album: Album;
-}
+import Track from '@/types/track'
+import TrackList from '@/components/ui/tracklist'
 
 export default function Dashboard() {
     const router = useRouter();
@@ -34,7 +19,6 @@ export default function Dashboard() {
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const baseVolume = 0.03;
 
-    // Check for access token and its expiry
     useEffect(() => {
         const token = localStorage.getItem('spotify_access_token');
         const expiresAt = localStorage.getItem('spotify_expires_at');
@@ -45,20 +29,17 @@ export default function Dashboard() {
         setAccessToken(token);
     }, [router]);
 
-    // Render loading state if no access token
     if (!accessToken) {
         return <p>Loading...</p>;
     }
 
-    // Handle search results
     const handleSearch = (trackResults: Track[]) => {
         const filteredTracks = trackResults.filter(
             track => !selectedTracks.some(selectedTrack => selectedTrack.id === track.id)
-        ).slice(0, 14); // Limit to the next 10 tracks that are not already in the selected tracks list
+        ).slice(0, 14);
         setTracks(filteredTracks);
     };
 
-    // Handle card click (toggle selection)
     const handleCardClick = (track: Track) => {
         if (audioRef.current) {
             audioRef.current.pause();
@@ -77,7 +58,6 @@ export default function Dashboard() {
         );
     };
 
-    // Handle play/pause actions
     const handlePlayPause = (trackId: string, audio: HTMLAudioElement) => {
         if (playingTrackId === trackId) {
             setIsPlaying(!isPlaying);
@@ -90,7 +70,6 @@ export default function Dashboard() {
         audioRef.current.volume = baseVolume;
     };
 
-    // Handle audio end event
     const handleAudioEnded = () => {
         if (audioRef.current) {
             audioRef.current.pause();
@@ -100,74 +79,50 @@ export default function Dashboard() {
         setPlayingTrackId(null);
     };
 
+    const handleCreatePlaylist = async () => {
+        try {
+            const playlistId = await createSpotifyPlaylist('My Playlist', true);
+            if (playlistId) {
+                await addTracksToPlaylist(playlistId, selectedTracks);
+                console.log('Playlist created successfully and tracks added');
+            }
+        } catch (error) {
+            console.error('Error creating playlist:', error);
+        }
+    };
+
     return (
         <main className="text-center">
             <AuroraBackground>
-                <motion.div
-                    initial={{ opacity: 0.0, y: 40 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{
-                        delay: 0.3,
-                        duration: 0.8,
-                        ease: 'easeInOut',
-                    }}
-                    className="relative flex flex-col gap-4 items-center justify-center px-4"
-                >
-                </motion.div>
-                <SearchBar onSearch={handleSearch} />
+                <SearchBar onSearch={handleSearch}/>
                 <div className="absolute top-2 right-2">
-                    <ModeToggle />
+                    <ModeToggle/>
                 </div>
-                <div className="relative w-3/4 flex flex-row gap-4 items-start justify-center px-4 py-2">
-                    <div className="p-2 w-1/2 flex flex-col bg-transparent rounded-md overflow-y-auto overflow-x-hidden min-h-[36rem] max-h-[36rem] custom-scrollbar">
-                        <AnimatePresence initial={false}>
-                            {tracks.map((track, index) => (
-                                <motion.div
-                                    key={track.id}
-                                    layout
-                                    initial={{ opacity: 0, x: -40 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    exit={{ opacity: 0, x: 40 }}
-                                    transition={{ type: 'tween', duration: 0.2 }}
-                                >
-                                    <TrackCard
-                                        card={track}
-                                        delay={0.15 * index}
-                                        onCardClick={handleCardClick}
-                                        isPlaying={playingTrackId === track.id && isPlaying}
-                                        isAdded={false}
-                                        onPlayPause={handlePlayPause}
-                                        onAudioEnded={handleAudioEnded}
-                                    />
-                                </motion.div>
-                            ))}
-                        </AnimatePresence>
-                    </div>
-                    <div className="p-2 w-1/2 flex flex-col bg-transparent rounded-md overflow-y-auto overflow-x-hidden min-h-[36rem] max-h-[36rem] custom-scrollbar">
-                        <AnimatePresence initial={false}>
-                            {selectedTracks.map((track) => (
-                                <motion.div
-                                    key={track.id}
-                                    layout
-                                    initial={{ opacity: 0, x: -40 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    exit={{ opacity: 0, x: -40 }}
-                                    transition={{ type: 'tween', duration: 0.2 }}
-                                >
-                                    <TrackCard
-                                        card={track}
-                                        delay={0.1}
-                                        onCardClick={handleCardClick}
-                                        isPlaying={playingTrackId === track.id && isPlaying}
-                                        isAdded={true}
-                                        onPlayPause={handlePlayPause}
-                                        onAudioEnded={handleAudioEnded}
-                                    />
-                                </motion.div>
-                            ))}
-                        </AnimatePresence>
-                    </div>
+                <div className="relative flex w-3/4 flex-row items-start justify-center gap-4 px-4 py-2">
+                    <TrackList
+                        tracks={tracks}
+                        handleCardClick={handleCardClick}
+                        playingTrackId={playingTrackId}
+                        isPlaying={isPlaying}
+                        handlePlayPause={handlePlayPause}
+                        handleAudioEnded={handleAudioEnded}
+                        isAdded={() => false} // Tracks in the search results are not added
+                    />
+                    <TrackList
+                        tracks={selectedTracks}
+                        handleCardClick={handleCardClick}
+                        playingTrackId={playingTrackId}
+                        isPlaying={isPlaying}
+                        handlePlayPause={handlePlayPause}
+                        handleAudioEnded={handleAudioEnded}
+                        isAdded={() => true} // Tracks in the selected list are considered added
+                    />
                 </div>
+                {selectedTracks.length > 0 && <button
+                    onClick={handleCreatePlaylist}
+                    className="shadow-[0_0_0_3px_#000000_inset] px-6 py-2 bg-transparent border border-black dark:border-white dark:text-white text-black rounded-lg font-bold transform hover:-translate-y-1 transition duration-400">
+                    Save Playlist
+                </button>}
             </AuroraBackground>
         </main>
     );

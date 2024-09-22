@@ -2,22 +2,7 @@ import React, {useRef, useEffect, useState, useCallback} from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { CirclePlus, CircleMinus, CirclePlay, CirclePause } from "lucide-react";
 import Image from 'next/image';
-
-interface Artist {
-    name: string;
-}
-
-interface Album {
-    images: { url: string }[];
-}
-
-interface Track {
-    id: string;
-    name: string;
-    preview_url?: string;
-    artists: Artist[];
-    album: Album;
-}
+import Track from '@/types/track'
 
 interface ExpandableCardProps {
     card: Track;
@@ -50,19 +35,19 @@ const TrackCard: React.FC<ExpandableCardProps> = ({ card, delay, onCardClick, is
     }, [onPlayPause, card.id]);
 
     const renderAddRemoveIcon = isAdded
-        ? <CircleMinus className="dark:text-white cursor-pointer" onClick={() => onCardClick(card)} />
-        : <CirclePlus className="dark:text-white cursor-pointer" onClick={() => onCardClick(card)} />;
+        ? <CircleMinus className="cursor-pointer dark:text-white" onClick={() => onCardClick(card)} />
+        : <CirclePlus className="cursor-pointer dark:text-white" onClick={() => onCardClick(card)} />;
 
     return (
         <div
-            className="relative group block p-2 h-full w-full"
+            className="relative block h-full w-full p-2 group"
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
         >
             <AnimatePresence>
                 {hovered && (
                     <motion.span
-                        className="absolute inset-0 h-full w-full bg-neutral-200 dark:bg-slate-800/[0.8] block rounded-3xl"
+                        className="absolute inset-0 block h-full w-full rounded-3xl bg-neutral-200 dark:bg-slate-800/[0.8]"
                         layoutId="hoverBackground"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1, transition: { duration: 0.15 } }}
@@ -71,7 +56,7 @@ const TrackCard: React.FC<ExpandableCardProps> = ({ card, delay, onCardClick, is
                 )}
             </AnimatePresence>
             <motion.div
-                className="flex flex-row items-center justify-between relative z-10 rounded-lg p-2"
+                className="relative z-10 flex flex-row items-center justify-between rounded-lg p-2"
                 initial={{ opacity: 0.0, x: -40 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{
@@ -92,11 +77,11 @@ const TrackCard: React.FC<ExpandableCardProps> = ({ card, delay, onCardClick, is
                     )}
                     <div>
                         <motion.h3
-                            className="font-bold text-neutral-700 text-left truncate dark:text-neutral-200"
+                            className="truncate text-left font-bold text-neutral-700 dark:text-neutral-200"
                         >
                             {card.name}
                         </motion.h3>
-                        <motion.p className="text-neutral-600 text-left dark:text-neutral-400">
+                        <motion.p className="text-left text-neutral-600 dark:text-neutral-400">
                             {card.artists.map((artist) => artist.name).join(', ')}
                         </motion.p>
                     </div>
@@ -105,7 +90,7 @@ const TrackCard: React.FC<ExpandableCardProps> = ({ card, delay, onCardClick, is
                     {card.preview_url && (
                         <div
                             onClick={togglePlayPause}
-                            className="cursor-pointer mr-2"
+                            className="mr-2 cursor-pointer"
                             aria-label="Toggle play/pause"
                         >
                             {isPlaying ? (

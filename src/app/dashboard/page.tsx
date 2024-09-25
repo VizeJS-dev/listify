@@ -120,25 +120,22 @@ export default function Dashboard() {
         }
     };
 
-    const handleNextStep = () => {
+    const resetAudio = () => {
         if (audioRef.current) {
             audioRef.current.pause();
             audioRef.current.currentTime = 0;
             setPlayingTrackId(null);
             setIsPlaying(false);
         }
+    };
 
+    const handleNextStep = () => {
+        resetAudio();
         setStep('finalize');
     };
 
     const handleBackStep = () => {
-        if (audioRef.current) {
-            audioRef.current.pause();
-            audioRef.current.currentTime = 0;
-            setPlayingTrackId(null);
-            setIsPlaying(false);
-        }
-
+        resetAudio();
         setStep('setup');
     };
 

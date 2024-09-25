@@ -1,5 +1,3 @@
-const accessToken = localStorage.getItem('spotify_access_token');
-
 interface Artist {
     name: string;
 }
@@ -28,8 +26,11 @@ interface UserResponse {
     display_name: string;
 }
 
-
 export const searchTracks = async (query: string): Promise<Track[]> => {
+    let accessToken: string | null = null;
+    if (typeof window !== "undefined") {
+        accessToken = localStorage.getItem('spotify_access_token');
+    }
 
     if (!accessToken) {
         console.error('Error in searchTracks function: No access token found');
@@ -56,6 +57,11 @@ export const searchTracks = async (query: string): Promise<Track[]> => {
 };
 
 export const getUser = async () => {
+    let accessToken: string | null = null;
+    if (typeof window !== "undefined") {
+        accessToken = localStorage.getItem('spotify_access_token');
+    }
+
     if (!accessToken) {
         console.error('Error in getUser function: No access token found');
         return '';
@@ -75,19 +81,23 @@ export const getUser = async () => {
 
         const data: UserResponse = await response.json();
 
-        if(!data.id) {
+        if (!data.id) {
             console.error(`Error in getUser function: No ID found in response`);
             return '';
         }
         return data;
     } catch (err) {
-        console.error("Error fetching user data:", err); // Logging the error
+        console.error("Error fetching user data:", err);
         throw err;
     }
 }
 
 export const createSpotifyPlaylist = async (name: string, isPublic: boolean): Promise<string | null> => {
-    const accessToken = localStorage.getItem('spotify_access_token');
+    let accessToken: string | null = null;
+    if (typeof window !== "undefined") {
+        accessToken = localStorage.getItem('spotify_access_token');
+    }
+
     if (!accessToken) {
         console.error('Error in createPlaylist function: No access token found');
         return null;
@@ -126,7 +136,7 @@ export const createSpotifyPlaylist = async (name: string, isPublic: boolean): Pr
         }
 
         const playlistData = await createResponse.json();
-        return playlistData.id; // Return the ID of the created playlist
+        return playlistData.id;
     } catch (err) {
         console.error('Error in createPlaylist function:', err);
         return null;
@@ -134,7 +144,11 @@ export const createSpotifyPlaylist = async (name: string, isPublic: boolean): Pr
 };
 
 export const addTracksToPlaylist = async (playlistId: string, tracks: Track[]): Promise<void> => {
-    const accessToken = localStorage.getItem('spotify_access_token');
+    let accessToken: string | null = null;
+    if (typeof window !== "undefined") {
+        accessToken = localStorage.getItem('spotify_access_token');
+    }
+
     if (!accessToken) {
         console.error('Error in addTracksToPlaylist function: No access token found');
         return;

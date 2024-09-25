@@ -9,7 +9,7 @@ interface SearchBarProps {
 }
 
 const SearchBar: React.FC<SearchBarProps> = ({onSearch}) => {
-    const placeholders = ['Search for a song!']
+    const placeholders = ['Enter a Song, Album or Artist']
     const [query, setQuery] = useState("");
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {

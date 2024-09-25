@@ -77,7 +77,7 @@ const TrackCard: React.FC<ExpandableCardProps> = ({ card, delay, onCardClick, is
                     )}
                     <div>
                         <motion.h3
-                            className="truncate text-left font-bold text-neutral-700 dark:text-neutral-200"
+                            className="overflow-hidden text-ellipsis text-left font-bold text-neutral-700 dark:text-neutral-200"
                         >
                             {card.name}
                         </motion.h3>

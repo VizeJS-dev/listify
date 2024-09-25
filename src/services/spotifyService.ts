@@ -25,6 +25,7 @@ interface TracksResponse {
 
 interface UserResponse {
     id: string;
+    display_name: string;
 }
 
 
@@ -78,8 +79,7 @@ export const getUser = async () => {
             console.error(`Error in getUser function: No ID found in response`);
             return '';
         }
-        console.log(data.id)
-        return data.id;
+        return data;
     } catch (err) {
         console.error("Error fetching user data:", err); // Logging the error
         throw err;

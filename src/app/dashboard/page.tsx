@@ -1,32 +1,58 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import SearchBar from '@/components/ui/search-bar';
-import { createSpotifyPlaylist, addTracksToPlaylist } from '@/services/spotifyService';
-import { AuroraBackground } from '@/components/ui/aurora-background';
-import { ModeToggle } from '@/components/ui/theme-toggle';
-import { useRouter } from 'next/navigation';
-import Track from '@/types/track'
-import TrackList from '@/components/ui/tracklist'
+import {createSpotifyPlaylist, addTracksToPlaylist} from '@/services/spotifyService';
+import {AuroraBackground} from '@/components/ui/aurora-background';
+import {ModeToggle} from '@/components/ui/theme-toggle';
+import {useRouter} from 'next/navigation';
+import Track from '@/types/track';
+import TrackList from '@/components/ui/tracklist';
+import Footer from '@/components/ui/footer';
+import {Button} from "@/components/ui/button";
+import {AppRouterInstance} from 'next/dist/shared/lib/app-router-context.shared-runtime';
+import {AnimatePresence, motion} from 'framer-motion';
+
+// Fetch access token
+const fetchAccessToken = async (router: AppRouterInstance) => {
+    try {
+        const token = localStorage.getItem('spotify_access_token');
+        const expiresAt = localStorage.getItem('spotify_expires_at');
+        if (!token || !expiresAt || Date.now() > Number(expiresAt)) {
+            router.replace('/login');
+            return null;
+        }
+        return token;
+    } catch (error) {
+        console.error('Error fetching access token:', error);
+        return null;
+    }
+};
 
 export default function Dashboard() {
     const router = useRouter();
     const [accessToken, setAccessToken] = useState<string | null>(null);
+    const [playlistName, setPlaylistName] = useState<string>('');
     const [tracks, setTracks] = useState<Track[]>([]);
     const [selectedTracks, setSelectedTracks] = useState<Track[]>([]);
     const [playingTrackId, setPlayingTrackId] = useState<string | null>(null);
     const [isPlaying, setIsPlaying] = useState<boolean>(false);
+    const [step, setStep] = useState<'setup' | 'finalize'>('setup');
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const baseVolume = 0.03;
 
     useEffect(() => {
-        const token = localStorage.getItem('spotify_access_token');
-        const expiresAt = localStorage.getItem('spotify_expires_at');
-
-        if (!token || !expiresAt || Date.now() > Number(expiresAt)) {
-            router.replace('/login');
-        }
-        setAccessToken(token);
+        const init = async () => {
+            try {
+                const token = await fetchAccessToken(router);
+                if (token) {
+                    setAccessToken(token);
+                }
+            } catch (error) {
+                console.error('Error initializing access token:', error);
+            }
+        };
+        init();
     }, [router]);
 
     if (!accessToken) {
@@ -36,8 +62,12 @@ export default function Dashboard() {
     const handleSearch = (trackResults: Track[]) => {
         const filteredTracks = trackResults.filter(
             track => !selectedTracks.some(selectedTrack => selectedTrack.id === track.id)
-        ).slice(0, 14);
+        ).slice(0, 20);
         setTracks(filteredTracks);
+    };
+
+    const handlePlaylistName = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setPlaylistName(e.target.value);
     };
 
     const handleCardClick = (track: Track) => {
@@ -79,9 +109,9 @@ export default function Dashboard() {
         setPlayingTrackId(null);
     };
 
-    const handleCreatePlaylist = async () => {
+    const handleCreatePlaylist = async (name: string, isPublic: boolean) => {
         try {
-            const playlistId = await createSpotifyPlaylist('My Playlist', true);
+            const playlistId = await createSpotifyPlaylist(name, isPublic);
             if (playlistId) {
                 await addTracksToPlaylist(playlistId, selectedTracks);
                 console.log('Playlist created successfully and tracks added');
@@ -91,38 +121,94 @@ export default function Dashboard() {
         }
     };
 
+    const handleNextStep = () => {
+        setStep('finalize');
+    };
+
+    const handleBackStep = () => {
+        setStep('setup');
+    };
+
     return (
-        <main className="text-center">
+        <main className="text-center h-screen overflow-x-hidden">
             <AuroraBackground>
-                <SearchBar onSearch={handleSearch}/>
-                <div className="absolute top-2 right-2">
-                    <ModeToggle/>
+                <div className="absolute top-2 right-2 z-10">
+                    <ModeToggle />
                 </div>
-                <div className="relative flex w-3/4 flex-row items-start justify-center gap-4 px-4 py-2">
-                    <TrackList
-                        tracks={tracks}
-                        handleCardClick={handleCardClick}
-                        playingTrackId={playingTrackId}
-                        isPlaying={isPlaying}
-                        handlePlayPause={handlePlayPause}
-                        handleAudioEnded={handleAudioEnded}
-                        isAdded={() => false} // Tracks in the search results are not added
-                    />
-                    <TrackList
-                        tracks={selectedTracks}
-                        handleCardClick={handleCardClick}
-                        playingTrackId={playingTrackId}
-                        isPlaying={isPlaying}
-                        handlePlayPause={handlePlayPause}
-                        handleAudioEnded={handleAudioEnded}
-                        isAdded={() => true} // Tracks in the selected list are considered added
-                    />
-                </div>
-                {selectedTracks.length > 0 && <button
-                    onClick={handleCreatePlaylist}
-                    className="shadow-[0_0_0_3px_#000000_inset] px-6 py-2 bg-transparent border border-black dark:border-white dark:text-white text-black rounded-lg font-bold transform hover:-translate-y-1 transition duration-400">
-                    Save Playlist
-                </button>}
+                <AnimatePresence mode="wait">
+                    {step === 'setup' && (
+                        <motion.div
+                            key="setup"
+                            initial={{ opacity: 0, x: 100 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -100 }}
+                            transition={{ duration: 0.5 }}
+                            className="relative flex flex-col items-center justify-between h-full w-full gap-4 px-4 py-2"
+                        >
+                            <SearchBar onSearch={handleSearch} />
+                            <div className="relative flex w-full flex-1 flex-row items-start justify-center gap-4 px-4 py-2 h-[50%] overflow-hidden">
+                                <TrackList
+                                    tracks={tracks}
+                                    handleCardClick={handleCardClick}
+                                    playingTrackId={playingTrackId}
+                                    isPlaying={isPlaying}
+                                    handlePlayPause={handlePlayPause}
+                                    handleAudioEnded={handleAudioEnded}
+                                    isAdded={() => false}
+                                />
+                                <TrackList
+                                    tracks={selectedTracks}
+                                    handleCardClick={handleCardClick}
+                                    playingTrackId={playingTrackId}
+                                    isPlaying={isPlaying}
+                                    handlePlayPause={handlePlayPause}
+                                    handleAudioEnded={handleAudioEnded}
+                                    isAdded={() => true}
+                                />
+                            </div>
+                            {selectedTracks.length > 0 && (
+                                <div className="z-10">
+                                    <Button onClick={handleNextStep}>Next step</Button>
+                                </div>
+                            )}
+                        </motion.div>
+                    )}
+
+                    {step === 'finalize' && (
+                        <motion.div
+                            key="finalize"
+                            initial={{ opacity: 0, x: 100 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -100 }}
+                            transition={{ duration: 0.5 }}
+                            className="relative flex h-full w-full items-center justify-center gap-4 px-4 py-2"
+                        >
+                            <div className="relative flex w-full flex-1 flex-row items-start justify-center gap-4 px-4 py-2 h-[50%] overflow-hidden">
+                                <TrackList
+                                    tracks={selectedTracks}
+                                    handleCardClick={handleCardClick}
+                                    playingTrackId={playingTrackId}
+                                    isPlaying={isPlaying}
+                                    handlePlayPause={handlePlayPause}
+                                    handleAudioEnded={handleAudioEnded}
+                                    isAdded={() => true}
+                                />
+                                <div className="mt-4 flex flex-col items-center">
+                                    <input
+                                        type="text"
+                                        value={playlistName}
+                                        onChange={handlePlaylistName}
+                                        className="mb-2 p-2 border border-gray-300 rounded dark:text-white dark:bg-gray-800 dark:border-gray-600"
+                                        placeholder="Give your playlist a name"
+                                    />
+                                    <Button onClick={() => handleCreatePlaylist(playlistName, true)}>Create Playlist</Button>
+                                    <Button variant="secondary" onClick={handleBackStep} className="mt-2">Back</Button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+                <Footer />
             </AuroraBackground>
         </main>
     );

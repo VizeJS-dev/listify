@@ -24,8 +24,8 @@ const TrackList: React.FC<TrackListProps> = ({
                                              }) => {
     return (
         <div
-            className="flex-1 flex flex-col w-full h-[90%] overflow-y-auto rounded-md bg-transparent p-2 overflow-x-hidden custom-scrollbar">
-            <AnimatePresence initial={false}>
+            className="flex-1 flex flex-col w-full h-[90%] overflow-y-auto rounded-md bg-transparent p-2 overflow-x-hidden custom-scrollbar md:w-1/2">
+            <AnimatePresence>
                 {tracks.map((track, index) => (
                     <motion.div
                         key={track.id}

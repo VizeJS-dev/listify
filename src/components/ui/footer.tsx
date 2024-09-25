@@ -22,8 +22,8 @@ const socialMedia = [
 
 const Footer = () => {
     return (
-        <footer className="absolute bottom-4 left-4 md:bottom-4 md:left-4 md:right-auto w-full md:w-auto" id="contact">
-            <div className="flex items-center gap-6 md:gap-3 justify-center md:justify-start">
+        <footer className="absolute bottom-2 left-2 md:bottom-4 md:left-4" id="contact">
+            <div className="flex items-center gap-1 md:gap-3 justify-center md:justify-start">
                 {socialMedia.map((profile) => (
                     <Button
                         key={profile.id}

@@ -132,6 +132,13 @@ export default function Dashboard() {
     };
 
     const handleBackStep = () => {
+        if (audioRef.current) {
+            audioRef.current.pause();
+            audioRef.current.currentTime = 0;
+            setPlayingTrackId(null);
+            setIsPlaying(false);
+        }
+
         setStep('setup');
     };
 

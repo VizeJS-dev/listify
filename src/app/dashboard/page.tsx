@@ -13,22 +13,6 @@ import {Button} from "@/components/ui/button";
 import {AppRouterInstance} from 'next/dist/shared/lib/app-router-context.shared-runtime';
 import {AnimatePresence, motion} from 'framer-motion';
 
-// Fetch access token
-const fetchAccessToken = async (router: AppRouterInstance) => {
-    try {
-        const token = localStorage.getItem('spotify_access_token');
-        const expiresAt = localStorage.getItem('spotify_expires_at');
-        if (!token || !expiresAt || Date.now() > Number(expiresAt)) {
-            router.replace('/login');
-            return null;
-        }
-        return token;
-    } catch (error) {
-        console.error('Error fetching access token:', error);
-        return null;
-    }
-};
-
 export default function Dashboard() {
     const router = useRouter();
     const [accessToken, setAccessToken] = useState<string | null>(null);
@@ -40,6 +24,21 @@ export default function Dashboard() {
     const [step, setStep] = useState<'setup' | 'finalize'>('setup');
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const baseVolume = 0.03;
+
+    const fetchAccessToken = async (router: AppRouterInstance) => {
+        try {
+            const token = localStorage.getItem('spotify_access_token');
+            const expiresAt = localStorage.getItem('spotify_expires_at');
+            if (!token || !expiresAt || Date.now() > Number(expiresAt)) {
+                router.replace('/login');
+                return null;
+            }
+            return token;
+        } catch (error) {
+            console.error('Error fetching access token:', error);
+            return null;
+        }
+    };
 
     useEffect(() => {
         const init = async () => {

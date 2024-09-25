@@ -70,12 +70,7 @@ export default function Dashboard() {
     };
 
     const handleCardClick = (track: Track) => {
-        if (audioRef.current) {
-            audioRef.current.pause();
-            audioRef.current.currentTime = 0;
-            setPlayingTrackId(null);
-            setIsPlaying(false);
-        }
+        resetAudio();
 
         setSelectedTracks(prevSelectedTracks =>
             prevSelectedTracks.some(t => t.id === track.id)

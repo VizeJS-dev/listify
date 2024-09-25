@@ -136,29 +136,30 @@ export default function Dashboard() {
     };
 
     return (
-        <main className="text-center h-screen overflow-x-hidden">
+        <main className="h-screen overflow-x-hidden text-center">
             <AuroraBackground>
                 <div
-                    className="hidden md:flex absolute flex-col justify-center items-center top-2 left-2 z-10 md:top-4 md:left-4 md:flex-row">
-                    <span className="text-white">made for</span>
-                    <Image className="ml-2 dark:white-filter dark:invert-0 invert" src="/spotify.svg" alt="spotify logo"
+                    className="absolute top-2 left-2 z-10 hidden flex-col items-center justify-center md:top-4 md:left-4 md:flex md:flex-row">
+                    <span className="text-black dark:text-white">made for</span>
+                    <Image className="ml-2 invert dark:white-filter dark:invert-0" src="/spotify.svg" alt="spotify logo"
                            width={24} height={24}></Image>
                 </div>
                 <div className="absolute top-2 right-2 z-10">
-                    <ModeToggle />
+                    <ModeToggle/>
                 </div>
                 <AnimatePresence mode="wait">
                     {step === 'setup' && (
                         <motion.div
                             key="setup"
-                            initial={{ opacity: 0, x: 100 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: -100 }}
-                            transition={{ duration: 0.5 }}
-                            className="relative flex flex-col items-center justify-between h-full w-full gap-4 px-4 py-2"
+                            initial={{opacity: 0, x: 100}}
+                            animate={{opacity: 1, x: 0}}
+                            exit={{opacity: 0, x: -100}}
+                            transition={{duration: 0.5}}
+                            className="relative flex h-full w-full flex-col items-center justify-between gap-4 px-4 py-2"
                         >
-                            <SearchBar onSearch={handleSearch} />
-                            <div className="relative flex w-full flex-1 flex-col md:flex-row items-start justify-center gap-4 px-4 py-2 h-[50%] overflow-hidden">
+                            <SearchBar onSearch={handleSearch}/>
+                            <div
+                                className="relative flex w-full flex-1 flex-col items-start justify-center gap-4 overflow-hidden px-4 py-2 h-[50%] md:flex-row">
                                 <TrackList
                                     tracks={tracks}
                                     handleCardClick={handleCardClick}
@@ -168,7 +169,7 @@ export default function Dashboard() {
                                     handleAudioEnded={handleAudioEnded}
                                     isAdded={() => false}
                                 />
-                                <hr className="w-full h-[2px] mx-auto bg-gray-100 border-0 rounded md:my-10 dark:bg-gray-700 md:hidden shrink-0"/>
+                                <hr className="mx-auto w-full shrink-0 rounded border-0 bg-gray-100 h-[2px] dark:bg-gray-700 md:my-10 md:hidden"/>
                                 <TrackList
                                     tracks={selectedTracks}
                                     handleCardClick={handleCardClick}
@@ -179,9 +180,9 @@ export default function Dashboard() {
                                     isAdded={() => true}
                                 />
                             </div>
-                            <div className="relative w-full h-20">
+                            <div className="relative h-20 w-full">
                                 {selectedTracks.length > 0 && (
-                                    <div className="absolute inset-0 flex justify-center items-center">
+                                    <div className="absolute inset-0 flex items-center justify-center">
                                         <Button onClick={handleNextStep}>Next step</Button>
                                     </div>
                                 )}
@@ -192,13 +193,14 @@ export default function Dashboard() {
                     {step === 'finalize' && (
                         <motion.div
                             key="finalize"
-                            initial={{ opacity: 0, x: 100 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: -100 }}
-                            transition={{ duration: 0.5 }}
-                            className="relative flex flex-col h-[90%] w-full items-center justify-center gap-4 px-4 py-2"
+                            initial={{opacity: 0, x: 100}}
+                            animate={{opacity: 1, x: 0}}
+                            exit={{opacity: 0, x: -100}}
+                            transition={{duration: 0.5}}
+                            className="relative flex w-full flex-col items-center justify-center gap-4 px-4 py-2 h-[90%]"
                         >
-                            <div className="relative flex w-full flex-1 flex-col md:flex-row items-start justify-center gap-4 px-4 py-2 h-[50%] overflow-hidden">
+                            <div
+                                className="relative flex w-full flex-1 flex-col items-start justify-center gap-4 overflow-hidden px-4 py-2 h-[50%] md:flex-row">
                                 <TrackList
                                     tracks={selectedTracks}
                                     handleCardClick={handleCardClick}
@@ -208,7 +210,7 @@ export default function Dashboard() {
                                     handleAudioEnded={handleAudioEnded}
                                     isAdded={() => true}
                                 />
-                                <div className="mt-4 flex flex-col items-center w-full md:w-1/4">
+                                <div className="mt-4 flex w-full flex-col items-center md:w-1/4">
                                     <input
                                         type="text"
                                         value={playlistName}
@@ -216,8 +218,10 @@ export default function Dashboard() {
                                         className="mb-2 p-2 bg-white dark:bg-zinc-800 text-center rounded dark:text-white shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),_0px_1px_0px_0px_rgba(25,28,33,0.02),_0px_0px_0px_1px_rgba(25,28,33,0.08)] focus:outline-none w-full"
                                         placeholder="Give your playlist a name"
                                     />
-                                    <Button className="w-full" onClick={() => handleCreatePlaylist(playlistName, true)}>Create Playlist</Button>
-                                    <Button className="w-full mt-2" variant="secondary" onClick={handleBackStep}>Back</Button>
+                                    <Button className="w-full" onClick={() => handleCreatePlaylist(playlistName, true)}>Create
+                                        Playlist</Button>
+                                    <Button className="mt-2 w-full" variant="secondary"
+                                            onClick={handleBackStep}>Back</Button>
                                 </div>
                             </div>
                         </motion.div>

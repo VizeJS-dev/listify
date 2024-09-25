@@ -1,6 +1,6 @@
 import React, {useRef, useEffect, useState, useCallback} from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import { CirclePlus, CircleMinus, CirclePlay, CirclePause } from "lucide-react";
+import {AnimatePresence, motion} from "framer-motion";
+import {CirclePlus, CircleMinus, CirclePlay, CirclePause} from "lucide-react";
 import Image from 'next/image';
 import Track from '@/types/track'
 
@@ -14,7 +14,15 @@ interface ExpandableCardProps {
     onAudioEnded: () => void;
 }
 
-const TrackCard: React.FC<ExpandableCardProps> = ({ card, delay, onCardClick, isPlaying, isAdded, onPlayPause, onAudioEnded}) => {
+const TrackCard: React.FC<ExpandableCardProps> = ({
+                                                      card,
+                                                      delay,
+                                                      onCardClick,
+                                                      isPlaying,
+                                                      isAdded,
+                                                      onPlayPause,
+                                                      onAudioEnded
+                                                  }) => {
     const audioRef = useRef<HTMLAudioElement>(null);
     const [hovered, setHovered] = useState(false);
 
@@ -35,8 +43,8 @@ const TrackCard: React.FC<ExpandableCardProps> = ({ card, delay, onCardClick, is
     }, [onPlayPause, card.id]);
 
     const renderAddRemoveIcon = isAdded
-        ? <CircleMinus className="cursor-pointer dark:text-white" onClick={() => onCardClick(card)} />
-        : <CirclePlus className="cursor-pointer dark:text-white" onClick={() => onCardClick(card)} />;
+        ? <CircleMinus className="cursor-pointer dark:text-white" onClick={() => onCardClick(card)}/>
+        : <CirclePlus className="cursor-pointer dark:text-white" onClick={() => onCardClick(card)}/>;
 
     return (
         <div
@@ -49,16 +57,16 @@ const TrackCard: React.FC<ExpandableCardProps> = ({ card, delay, onCardClick, is
                     <motion.span
                         className="absolute inset-0 block h-full w-full rounded-3xl bg-neutral-200 dark:bg-slate-800/[0.8]"
                         layoutId="hoverBackground"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1, transition: { duration: 0.15 } }}
-                        exit={{ opacity: 0, transition: { duration: 0.15, delay: 0.2 } }}
+                        initial={{opacity: 0}}
+                        animate={{opacity: 1, transition: {duration: 0.15}}}
+                        exit={{opacity: 0, transition: {duration: 0.15, delay: 0.2}}}
                     />
                 )}
             </AnimatePresence>
             <motion.div
                 className="relative z-10 flex flex-row items-center justify-between rounded-lg p-2"
-                initial={{ opacity: 0.0, x: -40 }}
-                animate={{ opacity: 1, x: 0 }}
+                initial={{opacity: 0.0, x: -40}}
+                animate={{opacity: 1, x: 0}}
                 transition={{
                     delay,
                     duration: 0.8,
@@ -94,14 +102,14 @@ const TrackCard: React.FC<ExpandableCardProps> = ({ card, delay, onCardClick, is
                             aria-label="Toggle play/pause"
                         >
                             {isPlaying ? (
-                                <CirclePause className="dark:text-white" />
+                                <CirclePause className="dark:text-white"/>
                             ) : (
-                                <CirclePlay className="dark:text-white" />
+                                <CirclePlay className="dark:text-white"/>
                             )}
                         </div>
                     )}
                     {renderAddRemoveIcon}
-                    <audio ref={audioRef} src={card.preview_url} onEnded={onAudioEnded} />
+                    <audio ref={audioRef} src={card.preview_url} onEnded={onAudioEnded}/>
                 </div>
             </motion.div>
         </div>

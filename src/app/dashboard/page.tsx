@@ -12,6 +12,7 @@ import Footer from '@/components/ui/footer';
 import {Button} from "@/components/ui/button";
 import {AppRouterInstance} from 'next/dist/shared/lib/app-router-context.shared-runtime';
 import {AnimatePresence, motion} from 'framer-motion';
+import Image from "next/image";
 
 export default function Dashboard() {
     const router = useRouter();
@@ -137,6 +138,12 @@ export default function Dashboard() {
     return (
         <main className="text-center h-screen overflow-x-hidden">
             <AuroraBackground>
+                <div
+                    className="hidden md:flex absolute flex-col justify-center items-center top-2 left-2 z-10 md:top-4 md:left-4 md:flex-row">
+                    <span className="text-white">made for</span>
+                    <Image className="ml-2 dark:white-filter dark:invert-0 invert" src="/spotify.svg" alt="spotify logo"
+                           width={24} height={24}></Image>
+                </div>
                 <div className="absolute top-2 right-2 z-10">
                     <ModeToggle />
                 </div>

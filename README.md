@@ -1,6 +1,7 @@
 # Listify
 
-Listify is a sophisticated web application that allows users to connect with Spotify to manage and display their playlists in an intuitive dashboard.
+Listify is a sophisticated web application that allows users to connect with Spotify to manage and display their
+playlists in an intuitive dashboard.
 
 ## Table of Contents
 

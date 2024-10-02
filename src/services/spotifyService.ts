@@ -21,11 +21,6 @@ interface TracksResponse {
     };
 }
 
-interface UserResponse {
-    id: string;
-    display_name: string;
-}
-
 const logResponseErrors = async (response: Response) => {
     try {
         const errorData = await response.json();
@@ -56,7 +51,12 @@ export const searchTracks = async (query: string): Promise<Track[]> => {
 
         if (!response.ok) {
             console.error(`Response error in searchTracks function: ${response.status} ${response.statusText}`);
-            await logResponseErrors(response);  // Log detailed error
+            try {
+                const errorText = await response.text();  // Capture raw response text
+                console.error('Error text:', errorText);
+            } catch (err) {
+                console.error('Error fetching error response text:', err);
+            }
             return [];
         }
 
@@ -67,39 +67,6 @@ export const searchTracks = async (query: string): Promise<Track[]> => {
         return [];
     }
 };
-
-export const getUser = async (): Promise<UserResponse | null> => {
-    let accessToken: string | null = null;
-    if (typeof window !== "undefined") {
-        accessToken = localStorage.getItem('spotify_access_token');
-    }
-
-    if (!accessToken) {
-        console.error('Error in getUser function: No access token found');
-        return null;
-    }
-
-    try {
-        console.log(`Access Token: ${accessToken}`);
-        const response = await fetch(`https://api.spotify.com/v1/me`, {
-            headers: {
-                Authorization: `Bearer ${accessToken}`
-            }
-        });
-
-        if (!response.ok) {
-            console.error(`Response error in getUser function: ${response.status} ${response.statusText}`);
-            await logResponseErrors(response);  // Log detailed error
-            return null;
-        }
-
-        const data: UserResponse = await response.json();
-        return data;
-    } catch (err) {
-        console.error("Error fetching user data:", err);
-        return null;
-    }
-}
 
 export const createSpotifyPlaylist = async (name: string, isPublic: boolean): Promise<string | null> => {
     let accessToken: string | null = null;

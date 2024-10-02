@@ -26,6 +26,15 @@ interface UserResponse {
     display_name: string;
 }
 
+const logResponseErrors = async (response: Response) => {
+    try {
+        const errorData = await response.json();
+        console.error('Error details:', errorData);
+    } catch (err) {
+        console.error('Error parsing error response:', err);
+    }
+};
+
 export const searchTracks = async (query: string): Promise<Track[]> => {
     let accessToken: string | null = null;
     if (typeof window !== "undefined") {
@@ -38,25 +47,28 @@ export const searchTracks = async (query: string): Promise<Track[]> => {
     }
 
     try {
-        const response = await fetch(`https://api.spotify.com/v1/search?q=${query}&type=track&limit=50`, {
+        console.log(`Access Token: ${accessToken}`);
+        const response = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track&limit=50`, {
             headers: {
                 Authorization: `Bearer ${accessToken}`
             }
         });
 
         if (!response.ok) {
-            console.error(`Response error in searchTracks function: ${response.statusText}`);
+            console.error(`Response error in searchTracks function: ${response.status} ${response.statusText}`);
+            await logResponseErrors(response);  // Log detailed error
             return [];
         }
 
         const data: TracksResponse = await response.json();
         return data.tracks.items;
     } catch (error) {
-        throw error;
+        console.error('Error in searchTracks function:', error);
+        return [];
     }
 };
 
-export const getUser = async () => {
+export const getUser = async (): Promise<UserResponse | null> => {
     let accessToken: string | null = null;
     if (typeof window !== "undefined") {
         accessToken = localStorage.getItem('spotify_access_token');
@@ -64,10 +76,11 @@ export const getUser = async () => {
 
     if (!accessToken) {
         console.error('Error in getUser function: No access token found');
-        return '';
+        return null;
     }
 
     try {
+        console.log(`Access Token: ${accessToken}`);
         const response = await fetch(`https://api.spotify.com/v1/me`, {
             headers: {
                 Authorization: `Bearer ${accessToken}`
@@ -75,20 +88,16 @@ export const getUser = async () => {
         });
 
         if (!response.ok) {
-            console.error(`Response error in getUser function: ${response.statusText}`);
-            return '';
+            console.error(`Response error in getUser function: ${response.status} ${response.statusText}`);
+            await logResponseErrors(response);  // Log detailed error
+            return null;
         }
 
         const data: UserResponse = await response.json();
-
-        if (!data.id) {
-            console.error(`Error in getUser function: No ID found in response`);
-            return '';
-        }
         return data;
     } catch (err) {
         console.error("Error fetching user data:", err);
-        throw err;
+        return null;
     }
 }
 
@@ -104,6 +113,8 @@ export const createSpotifyPlaylist = async (name: string, isPublic: boolean): Pr
     }
 
     try {
+        console.log(`Access Token: ${accessToken}`);
+
         const userResponse = await fetch('https://api.spotify.com/v1/me', {
             headers: {
                 Authorization: `Bearer ${accessToken}`
@@ -111,7 +122,8 @@ export const createSpotifyPlaylist = async (name: string, isPublic: boolean): Pr
         });
 
         if (!userResponse.ok) {
-            console.error(`Error fetching user information: ${userResponse.statusText}`);
+            console.error(`Error fetching user information: ${userResponse.status} ${userResponse.statusText}`);
+            await logResponseErrors(userResponse);  // Log detailed error
             return null;
         }
 
@@ -131,7 +143,8 @@ export const createSpotifyPlaylist = async (name: string, isPublic: boolean): Pr
         });
 
         if (!createResponse.ok) {
-            console.error(`Error creating playlist: ${createResponse.statusText}`);
+            console.error(`Error creating playlist: ${createResponse.status} ${createResponse.statusText}`);
+            await logResponseErrors(createResponse);  // Log detailed error
             return null;
         }
 
@@ -155,6 +168,7 @@ export const addTracksToPlaylist = async (playlistId: string, tracks: Track[]): 
     }
 
     try {
+        console.log(`Access Token: ${accessToken}`);
         const addTracksResponse = await fetch(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
             method: 'POST',
             headers: {
@@ -167,7 +181,8 @@ export const addTracksToPlaylist = async (playlistId: string, tracks: Track[]): 
         });
 
         if (!addTracksResponse.ok) {
-            console.error(`Error adding tracks to playlist: ${addTracksResponse.statusText}`);
+            console.error(`Error adding tracks to playlist: ${addTracksResponse.status} ${addTracksResponse.statusText}`);
+            await logResponseErrors(addTracksResponse);  // Log detailed error
         }
     } catch (err) {
         console.error('Error in addTracksToPlaylist function:', err);

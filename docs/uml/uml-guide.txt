@@ -1,0 +1,132 @@
+UML Setup Guide for Listify
+
+Overview
+This guide explains how to set up and produce the following UML artifacts for Listify:
+- Use case diagram(s)
+- Sequence diagram(s)
+- Class diagram(s)
+
+Actors and Scope (Listify)
+- Primary Actor: User
+- External System: Spotify Web API
+- System Under Design: Listify web app (Next.js front-end; future back-end if applicable)
+
+A) Use Case Diagram
+What to include:
+- Actors: User, Spotify API
+- Use cases (examples):
+  - Login with Spotify
+  - Browse Artists/Tracks
+  - Play Track Preview
+  - Create Playlist
+  - Add/Remove Track from Playlist
+  - Share Playlist (optional/future)
+- Associations: Link User to all use cases they initiate. Link Spotify API to use cases that require external calls (Login, Browse, Create Playlist, etc.).
+
+B) Sequence Diagram
+Scenario to model: Playing a track preview from the TrackCard component.
+Participants:
+- User
+- TrackCard (UI component)
+- BaseAudioCard (base component providing audio logic) — introduced via inheritance
+- HTMLAudioElement (browser audio API)
+- (Optional) Global Player/State Manager if applicable
+
+C) Class Diagram
+Goal: Show the basic inheritance and key types used by TrackCard.
+Classes to include:
+- BaseSocialFooter (abstract-ish base React component)
+- Footer (inherits from BaseSocialFooter)
+- Track (type) with properties: id, name, preview_url, artists, album, uri
+- TrackCard (functional or class component using Track) — shows composition rather than inheritance
+
+class BaseSocialFooter {
+  +socialMedia: SocialProfile[]
+  #renderSocialButtons(): ReactNode
+}
+
+class Footer {
+  +render(): ReactNode
+}
+
+BaseSocialFooter <|-- Footer
+
+class Track {
+  +id: string
+  +name: string
+  +preview_url: string
+  +artists: Artist[]
+  +album: Album
+  +uri: string
+}
+
+class TrackCard {
+  +props: { card: Track, ... }
+}
+
+class Artist { +name: string }
+class Album { +images: {url: string}[] }
+
+classDiagram
+  class BaseSocialFooter {
+    +socialMedia: SocialProfile[]
+    #renderSocialButtons(): ReactNode
+  }
+  class Footer {
+    +render(): ReactNode
+  }
+  BaseSocialFooter <|-- Footer
+
+  class Track {
+    +id: string
+    +name: string
+    +preview_url: string
+    +artists: Artist[]
+    +album: Album
+    +uri: string
+  }
+  class TrackCard {
+    +props: { card: Track, ... }
+  }
+  class Artist { +name: string }
+  class Album { +images: {url: string}[] }
+
+
+
+
+
+D) Updated Class Diagram (TrackEnhanced and Toggle)
+Goal: Document the new inheritance-like relationship for tracks used by the Enhanced View.
+
+Classes to include:
+- Track (base type)
+- TrackEnhanced (extends Track) — discriminator `kind: 'enhanced'` + optional UI fields
+- TrackCard (accepts `Track | TrackEnhanced` and renders subtle visual/behavior differences)
+- ToggleController (represents the Enhanced View toggle state)
+
+class Track {
+  +id: string
+  +name: string
+  +preview_url: string
+  +artists: Artist[]
+  +album: Album
+  +uri: string
+}
+
+class TrackEnhanced {
+  +kind: 'enhanced'
+  +variant: 'compact' | 'detailed'
+  +badge: 'new' | 'hot' | 'saved'
+  +isPlayableOverride: boolean
+}
+Track <|-- TrackEnhanced
+
+class TrackCard {
+  +props: { card: Track | TrackEnhanced, ... }
+}
+
+class ToggleController {
+  +enhancedView: boolean
+}
+
+ToggleController --> TrackCard : enhanceTracks() decoration

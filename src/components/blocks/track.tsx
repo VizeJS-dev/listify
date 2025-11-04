@@ -3,11 +3,15 @@ import { AnimatePresence, motion } from "framer-motion";
 import { CirclePlus, CircleMinus, CirclePlay, CirclePause } from "lucide-react";
 import Image from 'next/image';
 import Track from '@/types/track'
+import type { TrackEnhanced } from '@/types/track'
+import { isTrackEnhanced } from '@/types/track'
+
+type TrackLike = Track | TrackEnhanced;
 
 interface ExpandableCardProps {
-    card: Track;
+    card: TrackLike;
     delay?: number;
-    onCardClick: (track: Track) => void;
+    onCardClick: (track: TrackLike) => void;
     isPlaying: boolean;
     isAdded: boolean;
     onPlayPause: (trackId: string, audio: HTMLAudioElement) => void;
@@ -30,7 +34,7 @@ const TrackCard: React.FC<ExpandableCardProps> = ({
         const audioElement = audioRef.current;
         if (audioElement) {
             if (isPlaying && audioElement.paused) {
-                audioElement.play();
+                audioElement.play();       
             } else if (!isPlaying && !audioElement.paused) {
                 audioElement.pause();
             }
@@ -47,6 +51,12 @@ const TrackCard: React.FC<ExpandableCardProps> = ({
     const renderAddRemoveIcon = isAdded
         ? <CircleMinus className="cursor-pointer dark:text-white" onClick={() => onCardClick(card)} />
         : <CirclePlus className="cursor-pointer dark:text-white" onClick={() => onCardClick(card)} />;
+
+    const containerClasses = isTrackEnhanced(card)
+        ? "relative z-10 flex flex-row items-center justify-between rounded-lg p-2 border border-neutral-200/60 shadow-sm dark:border-neutral-700/60"
+        : "relative z-10 flex flex-row items-center justify-between rounded-lg p-2";
+
+    const showPlayPause = card.preview_url && !(isTrackEnhanced(card) && card.isPlayableOverride === false);
 
     return (
         <div
@@ -66,7 +76,7 @@ const TrackCard: React.FC<ExpandableCardProps> = ({
                 )}
             </AnimatePresence>
             <motion.div
-                className="relative z-10 flex flex-row items-center justify-between rounded-lg p-2"
+                className={containerClasses}
                 initial={{ opacity: 0.0, x: -40 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{
@@ -88,6 +98,11 @@ const TrackCard: React.FC<ExpandableCardProps> = ({
                     <div>
                         <motion.h3 className="overflow-hidden text-ellipsis text-left font-bold text-neutral-700 dark:text-neutral-200">
                             {card.name}
+                            {isTrackEnhanced(card) && card.badge && (
+                                <span className="ml-2 inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-semibold text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+                                    {card.badge}
+                                </span>
+                            )}
                         </motion.h3>
                         <motion.p className="text-left text-neutral-600 dark:text-neutral-400">
                             {card.artists.map(artist => artist.name).join(', ')}
@@ -95,7 +110,7 @@ const TrackCard: React.FC<ExpandableCardProps> = ({
                     </div>
                 </div>
                 <div className="flex items-center">
-                    {card.preview_url && (
+                    {showPlayPause && (
                         <div
                             onClick={togglePlayPause}
                             className="mr-2 cursor-pointer"

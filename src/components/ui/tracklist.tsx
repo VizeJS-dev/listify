@@ -2,15 +2,18 @@ import React from 'react';
 import {motion, AnimatePresence} from 'framer-motion';
 import TrackCard from '@/components/blocks/track';
 import Track from '@/types/track'
+import type { TrackEnhanced } from '@/types/track'
+
+type TrackLike = Track | TrackEnhanced;
 
 interface TrackListProps {
-    tracks: Track[];
-    handleCardClick: (track: Track) => void;
+    tracks: TrackLike[];
+    handleCardClick: (track: TrackLike) => void;
     playingTrackId: string | null;
     isPlaying: boolean;
     handlePlayPause: (trackId: string, audio: HTMLAudioElement) => void;
     handleAudioEnded: () => void;
-    isAdded: (track: Track) => boolean;
+    isAdded: (track: TrackLike) => boolean;
 }
 
 const TrackList: React.FC<TrackListProps> = ({

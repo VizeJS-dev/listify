@@ -13,6 +13,7 @@ import {Button} from "@/components/ui/button";
 import {AppRouterInstance} from 'next/dist/shared/lib/app-router-context.shared-runtime';
 import {AnimatePresence, motion} from 'framer-motion';
 import Image from "next/image";
+import { enhanceTracks } from '@/types/track';
 
 export default function Dashboard() {
     const router = useRouter();
@@ -23,8 +24,23 @@ export default function Dashboard() {
     const [playingTrackId, setPlayingTrackId] = useState<string | null>(null);
     const [isPlaying, setIsPlaying] = useState<boolean>(false);
     const [step, setStep] = useState<'setup' | 'finalize'>('setup');
+    const [enhancedView, setEnhancedView] = useState<boolean>(false);
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const baseVolume = 0.03;
+
+    // Load persisted toggle
+    useEffect(() => {
+        try {
+            const saved = localStorage.getItem('listify_enhanced_view');
+            if (saved) setEnhancedView(saved === '1');
+        } catch {}
+    }, []);
+
+    useEffect(() => {
+        try {
+            localStorage.setItem('listify_enhanced_view', enhancedView ? '1' : '0');
+        } catch {}
+    }, [enhancedView]);
 
     const fetchAccessToken = async (router: AppRouterInstance) => {
         try {
@@ -135,6 +151,9 @@ export default function Dashboard() {
         setStep('setup');
     };
 
+    const leftListTracks = enhancedView ? enhanceTracks(tracks) : tracks;
+    const rightListTracks = enhancedView ? enhanceTracks(selectedTracks) : selectedTracks;
+
     return (
         <main className="h-screen overflow-x-hidden text-center">
             <AuroraBackground>
@@ -157,11 +176,22 @@ export default function Dashboard() {
                             transition={{duration: 0.5}}
                             className="relative flex h-full w-full flex-col items-center justify-between gap-4 px-4 py-2"
                         >
-                            <SearchBar onSearch={handleSearch}/>
+                            <div className="flex w-full items-center justify-between">
+                                <SearchBar onSearch={handleSearch}/>
+                                <button
+                                    type="button"
+                                    onClick={() => setEnhancedView(v => !v)}
+                                    className="ml-4 rounded-md border border-neutral-200 bg-white px-3 py-1 text-sm text-neutral-800 shadow-sm hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100 dark:hover:bg-neutral-700"
+                                    aria-pressed={enhancedView}
+                                    aria-label="Toggle enhanced track view"
+                                >
+                                    {enhancedView ? 'Enhanced View: ON' : 'Enhanced View: OFF'}
+                                </button>
+                            </div>
                             <div
                                 className="relative flex w-full flex-1 flex-col items-start justify-center gap-4 overflow-hidden px-4 py-2 h-[50%] md:flex-row">
                                 <TrackList
-                                    tracks={tracks}
+                                    tracks={leftListTracks}
                                     handleCardClick={handleCardClick}
                                     playingTrackId={playingTrackId}
                                     isPlaying={isPlaying}
@@ -171,7 +201,7 @@ export default function Dashboard() {
                                 />
                                 <hr className="mx-auto w-full shrink-0 rounded border-0 bg-gray-100 h-[2px] dark:bg-gray-700 md:my-10 md:hidden"/>
                                 <TrackList
-                                    tracks={selectedTracks}
+                                    tracks={rightListTracks}
                                     handleCardClick={handleCardClick}
                                     playingTrackId={playingTrackId}
                                     isPlaying={isPlaying}
@@ -202,7 +232,7 @@ export default function Dashboard() {
                             <div
                                 className="relative flex w-full flex-1 flex-col items-start justify-center gap-4 overflow-hidden px-4 py-2 h-[50%] md:flex-row">
                                 <TrackList
-                                    tracks={selectedTracks}
+                                    tracks={rightListTracks}
                                     handleCardClick={handleCardClick}
                                     playingTrackId={playingTrackId}
                                     isPlaying={isPlaying}

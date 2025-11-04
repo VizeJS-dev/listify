@@ -86,3 +86,39 @@ Contributions are welcome! Please open an issue or submit a pull request for any
 ## License
 
 This project is licensed under the MIT License.
+
+## Tests
+
+This project uses Jest + React Testing Library for unit and integration tests.
+
+- To run the tests once:
+
+```
+npm test
+```
+
+- To run tests in watch mode during development:
+
+```
+npm run test:watch
+```
+
+- For CI (serial execution):
+
+```
+npm run test:ci
+```
+
+What’s covered now:
+- Unit tests — `TrackCard` component:
+  - Renders title, artists, cover and audio element (happy flow).
+  - Play/pause toggle calls `onPlayPause` with `trackId` and audio element.
+  - Add/remove icon calls `onCardClick`.
+  - Edge cases: no `preview_url` (no toggle), no album image, `onAudioEnded` called on `ended`, and `isPlaying` drives `audio.play()`/`audio.pause()`.
+- Unit tests — `Footer` component:
+  - Renders three social links with images and accessible labels.
+  - Each link opens in a new tab and uses `rel="noreferrer"` and is wrapped by a button for layout.
+- Integration test — Home page (`src/app/page.tsx`):
+  - Renders hero text, steps 1–4 with descriptions, the CTA link to `/login`, the theme toggle, and Footer links.
+  - Test is deterministic by mocking animation/theming components (`AuroraBackground`, `ModeToggle`, `TextGenerateEffect`).
+
